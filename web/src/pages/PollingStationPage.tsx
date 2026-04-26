@@ -1,9 +1,6 @@
 import { useState } from 'react';
 import { MapPin, Search, ExternalLink } from 'lucide-react';
-<<<<<<< HEAD
 import { api } from '@/lib/api';
-=======
->>>>>>> 87c30915653c78c165f3655d051da84594a4b038
 
 export default function PollingStationPage() {
   const [query, setQuery] = useState('');
@@ -12,13 +9,8 @@ export default function PollingStationPage() {
   const search = async () => {
     if (!query.trim()) return;
     try {
-<<<<<<< HEAD
       const res = await api.polling(query);
       setResult(res);
-=======
-      const res = await fetch(`/api/polling?q=${encodeURIComponent(query)}`);
-      setResult(await res.json());
->>>>>>> 87c30915653c78c165f3655d051da84594a4b038
     } catch {
       setResult({ message: 'Unable to search. Please visit https://voters.eci.gov.in directly.' });
     }
