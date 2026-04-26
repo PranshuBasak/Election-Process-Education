@@ -95,7 +95,7 @@ Use StitchMCP project `2459438470231978401` for screens and design system. All s
 
 ```mermaid
 election-edu/
-├── app/
+├── backend/
 │   ├── main.py
 │   ├── routers/   (chat, timeline, steps, glossary, quiz, polling, sources)
 │   ├── services/  (gemini.py, rag.py, cache.py, i18n.py)

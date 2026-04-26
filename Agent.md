@@ -19,9 +19,9 @@ Build, test, and deploy an Election Process Education assistant that is:
 3. Do NOT exceed 1 MB total repo size. Run `du -sh .` before every commit.
    Fail the task if size > 900 KB.
 4. Single branch only: `main`. Never create feature branches.
-5. All Gemini calls go through `app/services/gemini.py`. No direct SDK use
+5. All Gemini calls go through `backend/services/gemini.py`. No direct SDK use
    elsewhere.
-6. All external data goes through a connector under `app/connectors/`.
+6. All external data goes through a connector under `backend/connectors/`.
    Never call an external API from routers or the frontend.
 7. Every assistant answer must carry a source URL. If no source is
    available, return: "I don't have verified information on that."
@@ -33,7 +33,7 @@ Build, test, and deploy an Election Process Education assistant that is:
 
 ## Tech Stack (do not change without approval)
 - Backend: Python 3.11, FastAPI, Uvicorn, httpx, pydantic v2
-- Frontend: STRICTLY Vite + React + Vitest, TypeScript, Tailwind, Zustand. NEVER USE NEXT.JS.
+- Frontend: STRICTLY Vite + React + Vitest, TypeScript, Tailwind, Zustand. NEVER USE NEXT.JS. NO `app/` folders.
 - AI: Vertex AI SDK, Gemini Flash (classification) + Gemini Pro (answers)
 - Infra: Cloud Run, Artifact Registry, Secret Manager, Cloud Logging
 - CI: GitHub Actions → `gcloud run deploy --source .`
@@ -76,7 +76,7 @@ When fetching web content for RAG context:
 - Deploying to any platform other than Cloud Run.
 - Pushing to any branch other than `main`.
 - Adding analytics, trackers, or third-party scripts to the frontend.
-- Adding Next.js or any other framework. Use ONLY Vite + React + Vitest.
+- Adding Next.js or any other framework. Use ONLY Vite + React + Vitest. NEVER create an `app/` directory (to avoid Next.js App Router confusion).
 
 ## Definition of Done (per task)
 - Code compiles, tests pass, lint clean.
