@@ -7,8 +7,8 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 
-from app.models.schemas import QuizRequest, QuizResponse, QuizQuestion, QuizOption
-from app.services import gemini
+from backend.models.schemas import QuizRequest, QuizResponse, QuizQuestion, QuizOption
+from backend.services import gemini
 
 router = APIRouter(prefix="/api", tags=["quiz"])
 

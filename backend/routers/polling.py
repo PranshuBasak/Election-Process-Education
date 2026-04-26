@@ -9,12 +9,12 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 
-from app.models.schemas import (
+from backend.models.schemas import (
     EligibilityRequest,
     EligibilityResult,
     PollingStationResult,
 )
-from app.connectors import eci_voter
+from backend.connectors import eci_voter
 
 router = APIRouter(prefix="/api", tags=["polling"])
 

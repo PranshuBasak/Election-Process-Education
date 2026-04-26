@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 
-from app.models.schemas import SourceInfo, SourcesResponse
+from backend.models.schemas import SourceInfo, SourcesResponse
 
 router = APIRouter(prefix="/api", tags=["sources"])
 

@@ -7,8 +7,8 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 
-from app.models.schemas import ChatRequest, ChatResponse, Citation
-from app.services.rag import answer_question
+from backend.models.schemas import ChatRequest, ChatResponse, Citation
+from backend.services.rag import answer_question
 
 router = APIRouter(prefix="/api", tags=["chat"])
 

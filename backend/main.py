@@ -8,8 +8,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-from app.models.schemas import HealthResponse
-from app.routers import chat, timeline, steps, glossary, quiz, polling, sources
+from backend.models.schemas import HealthResponse
+from backend.routers import chat, timeline, steps, glossary, quiz, polling, sources
 
 app = FastAPI(
     title="Election Education Bot",

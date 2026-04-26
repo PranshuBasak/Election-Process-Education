@@ -9,9 +9,9 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from app.services import gemini
-from app.services.cache import cache, TTL_SCHEDULE, TTL_PROCEDURAL, TTL_GLOSSARY, TTL_RESULTS
-from app.connectors import eci_voter, eci_results, eci_schedule, data_gov_in, wiki
+from backend.services import gemini
+from backend.services.cache import cache, TTL_SCHEDULE, TTL_PROCEDURAL, TTL_GLOSSARY, TTL_RESULTS
+from backend.connectors import eci_voter, eci_results, eci_schedule, data_gov_in, wiki
 
 logger = logging.getLogger(__name__)
 

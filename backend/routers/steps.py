@@ -7,10 +7,10 @@ from __future__ import annotations
 
 from fastapi import APIRouter, HTTPException
 
-from app.models.schemas import LearnModule, Step
+from backend.models.schemas import LearnModule, Step
 
-from app.services import i18n
-from app.services.cache import cache, TTL_GLOSSARY
+from backend.services import i18n
+from backend.services.cache import cache, TTL_GLOSSARY
 
 router = APIRouter(prefix="/api", tags=["learn"])
 

@@ -7,10 +7,10 @@ from __future__ import annotations
 
 from fastapi import APIRouter, HTTPException
 
-from app.models.schemas import GlossaryTerm
-from app.services import gemini
-from app.connectors import wiki
-from app.services.cache import cache, TTL_GLOSSARY
+from backend.models.schemas import GlossaryTerm
+from backend.services import gemini
+from backend.connectors import wiki
+from backend.services.cache import cache, TTL_GLOSSARY
 
 router = APIRouter(prefix="/api", tags=["glossary"])
 

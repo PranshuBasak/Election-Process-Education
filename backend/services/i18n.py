@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from app.services.cache import cache, TTL_GLOSSARY
-from app.services import gemini
+from backend.services.cache import cache, TTL_GLOSSARY
+from backend.services import gemini
 
 
 SUPPORTED_LOCALES = {"en", "hi"}

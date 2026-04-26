@@ -7,11 +7,11 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 
-from app.models.schemas import TimelineItem
-from app.connectors import eci_schedule
-from app.services.cache import cache, TTL_SCHEDULE
+from backend.models.schemas import TimelineItem
+from backend.connectors import eci_schedule
+from backend.services.cache import cache, TTL_SCHEDULE
 
-from app.services import i18n
+from backend.services import i18n
 
 router = APIRouter(prefix="/api", tags=["timeline"])
 
