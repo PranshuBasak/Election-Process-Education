@@ -15,7 +15,6 @@ export default function LearnDetailPage() {
   }, [slug]);
 
   const toggle = (order: number) => {
-<<<<<<< HEAD
     setDone(prev => {
       const n = new Set(prev);
       if (n.has(order)) {
@@ -25,9 +24,6 @@ export default function LearnDetailPage() {
       }
       return n;
     });
-=======
-    setDone(prev => { const n = new Set(prev); n.has(order) ? n.delete(order) : n.add(order); return n; });
->>>>>>> 87c30915653c78c165f3655d051da84594a4b038
   };
 
   if (loading) return <div className="flex justify-center py-16"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
@@ -45,22 +41,26 @@ export default function LearnDetailPage() {
         <p className="text-muted-foreground">{mod.summary}</p>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-6">
         {mod.steps?.map((step, i) => (
-          <div key={step.order} className="glass-card p-5 animate-slide-up" style={{ animationDelay: `${i * 60}ms` }}>
-            <div className="flex items-start gap-4">
+          <div key={step.order} className={`glass-card p-6 animate-slide-up transition-all duration-300 border ${done.has(step.order) ? 'border-primary/30 bg-primary/5 shadow-md' : 'border-transparent hover:border-border hover:shadow-lg'}`} style={{ animationDelay: `${i * 60}ms` }}>
+            <div className="flex items-start gap-5">
               <button onClick={() => toggle(step.order)}
-                className={`mt-0.5 shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-all ${done.has(step.order) ? 'bg-secondary text-secondary-foreground' : 'bg-primary/10 text-primary'}`}>
-                {done.has(step.order) ? <CheckCircle2 className="w-5 h-5" /> : step.order}
+                className={`mt-1 shrink-0 w-10 h-10 rounded-full flex items-center justify-center font-bold text-base transition-all duration-300 hover:scale-110 shadow-sm ${done.has(step.order) ? 'bg-primary text-primary-foreground shadow-primary/25' : 'bg-secondary/20 text-secondary-foreground hover:bg-secondary/30'}`}>
+                {done.has(step.order) ? <CheckCircle2 className="w-6 h-6" /> : step.order}
               </button>
-              <div className="flex-1 space-y-2">
-                <h3 className="font-semibold">{step.title}</h3>
-                {step.who && <span className="text-xs bg-muted px-2 py-0.5 rounded-full text-muted-foreground">{step.who}</span>}
-                <p className="text-sm text-muted-foreground leading-relaxed">{step.description_md}</p>
+              <div className="flex-1 space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                  <h3 className={`font-bold text-xl transition-colors ${done.has(step.order) ? 'text-primary' : 'text-foreground'}`}>{step.title}</h3>
+                  {step.who && <span className="text-xs font-semibold bg-accent/10 text-accent px-2.5 py-1 rounded-full">{step.who}</span>}
+                </div>
+                <p className="text-base text-muted-foreground leading-relaxed">{step.description_md}</p>
                 {step.source_url && (
-                  <a href={step.source_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-primary hover:underline">
-                    <ExternalLink className="w-3 h-3" /> Source
-                  </a>
+                  <div className="pt-2">
+                    <a href={step.source_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary/80 transition-colors">
+                      <ExternalLink className="w-3.5 h-3.5" /> Additional Resource
+                    </a>
+                  </div>
                 )}
               </div>
             </div>

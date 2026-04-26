@@ -27,36 +27,39 @@ export default function TimelinePage() {
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
         </div>
       ) : (
-        <div className="relative">
-          {/* Vertical line */}
-          <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-border" />
+        <div className="relative mt-12 pb-8">
+          {/* Vertical line with gradient */}
+          <div className="absolute left-6 top-0 bottom-0 w-1 bg-gradient-to-b from-primary/50 via-secondary/50 to-transparent rounded-full" />
 
-          <div className="space-y-6">
+          <div className="space-y-8">
             {items.map((item, i) => (
               <div
                 key={i}
-                className="relative pl-16 animate-slide-up"
-                style={{ animationDelay: `${i * 80}ms` }}
+                className="relative pl-16 group animate-slide-up"
+                style={{ animationDelay: `${i * 100}ms` }}
               >
-                {/* Dot */}
-                <div className="absolute left-4 top-6 w-5 h-5 rounded-full border-4 border-primary bg-card" />
+                {/* Glowing Dot */}
+                <div className="absolute left-[18px] top-6 w-5 h-5 rounded-full border-4 border-primary bg-background shadow-[0_0_15px_rgba(var(--primary),0.5)] transition-transform duration-300 group-hover:scale-125 group-hover:bg-primary" />
 
-                <div className="glass-card p-5 space-y-2">
-                  <div className="flex items-start justify-between gap-4">
-                    <h3 className="font-semibold text-lg">{item.phase}</h3>
+                {/* Content Card */}
+                <div className="glass-card p-6 space-y-3 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:bg-card/60">
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
+                    <h3 className="font-bold text-xl text-foreground group-hover:text-primary transition-colors">{item.phase}</h3>
                     {(item.start || item.end) && (
-                      <span className="text-xs text-muted-foreground shrink-0 bg-muted px-2 py-1 rounded">
+                      <span className="text-xs font-semibold text-primary/80 shrink-0 bg-primary/10 px-3 py-1.5 rounded-full border border-primary/20">
                         {item.start}{item.end ? ` – ${item.end}` : ''}
                       </span>
                     )}
                   </div>
                   {item.description && (
-                    <p className="text-sm text-muted-foreground leading-relaxed">{item.description}</p>
+                    <p className="text-base text-muted-foreground leading-relaxed">{item.description}</p>
                   )}
                   {item.source_url && (
-                    <a href={item.source_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-primary hover:underline">
-                      <ExternalLink className="w-3 h-3" /> Source
-                    </a>
+                    <div className="pt-2">
+                      <a href={item.source_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary/80 transition-colors">
+                        <ExternalLink className="w-3.5 h-3.5" /> Official Source
+                      </a>
+                    </div>
                   )}
                 </div>
               </div>
