@@ -1,0 +1,76 @@
+"""Sources & Transparency router — GET /api/sources
+
+Exposes the complete list of data sources used by the bot.
+"""
+
+from __future__ import annotations
+
+from fastapi import APIRouter
+
+from app.models.schemas import SourceInfo, SourcesResponse
+
+router = APIRouter(prefix="/api", tags=["sources"])
+
+_SOURCES: list[SourceInfo] = [
+    SourceInfo(
+        name="Election Commission of India (ECI)",
+        base_url="https://www.eci.gov.in",
+        purpose="Election schedules, Model Code of Conduct, constitutional provisions",
+        auth="none",
+        status="ok",
+    ),
+    SourceInfo(
+        name="ECI Voter Helpline (NVSP)",
+        base_url="https://voters.eci.gov.in",
+        purpose="Voter registration, EPIC search, polling station lookup, electoral rolls",
+        auth="none",
+        status="ok",
+    ),
+    SourceInfo(
+        name="ECI Results Portal",
+        base_url="https://results.eci.gov.in",
+        purpose="Live and historical election results, party-wise & constituency-wise data",
+        auth="none",
+        status="ok",
+    ),
+    SourceInfo(
+        name="data.gov.in",
+        base_url="https://data.gov.in",
+        purpose="Historical election datasets, turnout statistics, demographic data",
+        auth="api_key",
+        status="ok",
+    ),
+    SourceInfo(
+        name="LokDhaba (TCPD, Ashoka University)",
+        base_url="https://lokdhaba.ashoka.edu.in",
+        purpose="Constituency-level historical results (1962–present), party performance trends",
+        auth="none",
+        status="ok",
+    ),
+    SourceInfo(
+        name="MyNeta (ADR)",
+        base_url="https://www.myneta.info",
+        purpose="Candidate affidavits, criminal records, financial declarations",
+        auth="none",
+        status="ok",
+    ),
+    SourceInfo(
+        name="Wikipedia REST API",
+        base_url="https://en.wikipedia.org",
+        purpose="Glossary definitions, supplementary context for election terms",
+        auth="none",
+        status="ok",
+    ),
+    SourceInfo(
+        name="Google Civic Information API",
+        base_url="https://www.googleapis.com/civicinfo/v2",
+        purpose="Fallback representative lookup (limited India coverage)",
+        auth="api_key",
+        status="ok",
+    ),
+]
+
+
+@router.get("/sources", response_model=SourcesResponse)
+async def list_sources() -> SourcesResponse:
+    return SourcesResponse(sources=_SOURCES)
