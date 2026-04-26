@@ -15,7 +15,15 @@ export default function LearnDetailPage() {
   }, [slug]);
 
   const toggle = (order: number) => {
-    setDone(prev => { const n = new Set(prev); n.has(order) ? n.delete(order) : n.add(order); return n; });
+    setDone(prev => {
+      const n = new Set(prev);
+      if (n.has(order)) {
+        n.delete(order);
+      } else {
+        n.add(order);
+      }
+      return n;
+    });
   };
 
   if (loading) return <div className="flex justify-center py-16"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;

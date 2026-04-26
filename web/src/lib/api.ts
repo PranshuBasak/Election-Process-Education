@@ -123,5 +123,7 @@ export const api = {
 
   sources: () => request<{ sources: SourceInfo[] }>('/sources'),
 
+  polling: (q: string) => request<{ message?: string; source_url?: string }>(`/polling?q=${encodeURIComponent(q)}`),
+
   health: () => request<{ status: string; version: string }>('/health'),
 };
