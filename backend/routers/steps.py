@@ -9,6 +9,9 @@ from fastapi import APIRouter, HTTPException
 
 from app.models.schemas import LearnModule, Step
 
+from app.services import i18n
+from app.services.cache import cache, TTL_GLOSSARY
+
 router = APIRouter(prefix="/api", tags=["learn"])
 
 # Static learn modules — keeps repo size tiny, no DB needed.
@@ -80,18 +83,65 @@ _MODULES: list[LearnModule] = [
 
 
 @router.get("/learn", response_model=list[LearnModule])
-async def list_modules() -> list[LearnModule]:
+async def list_modules(locale: str = "en") -> list[LearnModule]:
     """Return all learn modules (without full steps for listing)."""
-    return [
-        LearnModule(slug=m.slug, title=m.title, icon=m.icon, summary=m.summary)
-        for m in _MODULES
-    ]
+    cache_key = f"learn:list:{locale}"
+    cached = cache.get(cache_key)
+    if cached is not None:
+        return cached
+
+    items = []
+    for m in _MODULES:
+        title = m.title
+        summary = m.summary
+        if locale == "hi":
+            title = await i18n.translate(title, "hi")
+            summary = await i18n.translate(summary, "hi")
+        items.append(LearnModule(slug=m.slug, title=title, icon=m.icon, summary=summary))
+    
+    cache.set(cache_key, items, TTL_GLOSSARY)
+    return items
 
 
 @router.get("/learn/{slug}", response_model=LearnModule)
-async def get_module(slug: str) -> LearnModule:
+async def get_module(slug: str, locale: str = "en") -> LearnModule:
     """Return a specific learn module with full steps."""
+    cache_key = f"learn:module:{slug}:{locale}"
+    cached = cache.get(cache_key)
+    if cached is not None:
+        return cached
+
     for m in _MODULES:
         if m.slug == slug:
-            return m
+            title = m.title
+            summary = m.summary
+            steps = []
+            
+            if locale == "hi":
+                title = await i18n.translate(title, "hi")
+                summary = await i18n.translate(summary, "hi")
+                for s in m.steps:
+                    stitle = await i18n.translate(s.title, "hi")
+                    sdesc = await i18n.translate(s.description_md, "hi")
+                    swho = await i18n.translate(s.who, "hi") if s.who else s.who
+                    steps.append(Step(
+                        order=s.order,
+                        title=stitle,
+                        description_md=sdesc,
+                        who=swho,
+                        source_url=s.source_url
+                    ))
+            else:
+                steps = m.steps
+
+            result = LearnModule(
+                slug=m.slug,
+                title=title,
+                icon=m.icon,
+                summary=summary,
+                steps=steps
+            )
+            cache.set(cache_key, result, TTL_GLOSSARY)
+            return result
+            
     raise HTTPException(status_code=404, detail=f"Module '{slug}' not found")

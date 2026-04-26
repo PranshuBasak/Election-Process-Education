@@ -11,26 +11,36 @@ from app.models.schemas import TimelineItem
 from app.connectors import eci_schedule
 from app.services.cache import cache, TTL_SCHEDULE
 
+from app.services import i18n
+
 router = APIRouter(prefix="/api", tags=["timeline"])
 
 
 @router.get("/timeline", response_model=list[TimelineItem])
-async def get_timeline() -> list[TimelineItem]:
-    cached = cache.get("timeline:schedule")
+async def get_timeline(locale: str = "en") -> list[TimelineItem]:
+    cache_key = f"timeline:schedule:{locale}"
+    cached = cache.get(cache_key)
     if cached is not None:
         return cached
 
     raw = await eci_schedule.fetch_latest_schedule()
-    items = [
-        TimelineItem(
-            phase=r.get("phase", ""),
+    items = []
+    for r in raw:
+        phase = r.get("phase", "")
+        description = r.get("description", "")
+        
+        if locale == "hi":
+            phase = await i18n.translate(phase, "hi")
+            description = await i18n.translate(description, "hi")
+            
+        items.append(TimelineItem(
+            phase=phase,
             start=r.get("start", r.get("date", "")),
             end=r.get("end", ""),
-            description=r.get("description", ""),
+            description=description,
             legal_ref=r.get("legal_ref", ""),
             source_url=r.get("source_url", ""),
-        )
-        for r in raw
-    ]
-    cache.set("timeline:schedule", items, TTL_SCHEDULE)
+        ))
+        
+    cache.set(cache_key, items, TTL_SCHEDULE)
     return items
