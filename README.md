@@ -5,17 +5,17 @@ An AI-powered assistant designed to educate Indian citizens about the election p
 ## 🚀 Overview
 
 This project is a full-stack application consisting of:
-- **Frontend**: A modern, responsive Next.js 16 application with a chat interface, interactive timelines, and educational modules.
+- **Frontend**: A modern, responsive React application built with Vite, featuring a chat interface, interactive timelines, and educational modules.
 - **Backend**: A FastAPI-based Python server that handles AI processing (via Google Gemini), data retrieval from official sources (ECI), and RAG (Retrieval-Augmented Generation).
 
 ## 🛠️ Technology Stack
 
 ### Frontend
-- **Framework**: Next.js 16 (App Router)
+- **Framework**: Vite + React
 - **Language**: TypeScript
-- **Styling**: Tailwind CSS 4, Framer Motion
+- **Styling**: Tailwind CSS
 - **Components**: Shadcn UI
-- **AI Integration**: Vercel AI SDK
+- **AI Integration**: Vercel AI SDK (via React hooks)
 
 ### Backend
 - **Framework**: FastAPI
@@ -64,21 +64,20 @@ This project is a full-stack application consisting of:
 
 2. **Start the Frontend Development Server**:
    ```bash
+   cd web
    npm run dev
    ```
-   The application will be available at `http://localhost:3000`.
+   The application will be available at `http://localhost:5173`.
 
 ## 📂 Project Structure
 
 ```
 ├── app/                # Python application logic (Services, Models)
 ├── backend/            # FastAPI entry point and routers
-├── src/                # Next.js frontend source
-│   ├── app/            # Next.js App Router pages
-│   ├── components/     # React components
-│   └── lib/            # Utilities and shared logic
-├── public/             # Static assets
-└── web/                # (Optional) Legacy Vite-based web interface
+├── web/                # Vite + React frontend source
+│   ├── src/            # React components and pages
+│   ├── public/         # Static assets
+│   └── package.json    # Frontend dependencies
 ```
 
 ## 📜 License

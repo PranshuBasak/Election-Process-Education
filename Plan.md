@@ -75,6 +75,7 @@ Cache TTLs: schedules 1h, procedural 24h, glossary 7d.
   source URL, refuse if context empty.
 
 ## 9. Frontend Screens (match Stitch plan)
+Use StitchMCP project `2459438470231978401` for screens and design system. All screens are created, just convert them into code and follow its design system.
 1. Landing / Home
 2. Global Chat Drawer
 3. Interactive Timeline

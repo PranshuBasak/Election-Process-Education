@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ElectionEdu - Ask AI Drawer</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary-container": "#1e3a8a",
+                        "on-tertiary": "#ffffff",
+                        "primary-fixed-dim": "#b6c4ff",
+                        "surface": "#faf8ff",
+                        "secondary-container": "#fea619",
+                        "error-container": "#ffdad6",
+                        "on-secondary-fixed-variant": "#653e00",
+                        "surface-container": "#eeedf4",
+                        "primary": "#00236f",
+                        "on-primary-fixed": "#00164e",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-container": "#f39461",
+                        "on-background": "#1a1b21",
+                        "inverse-surface": "#2f3036",
+                        "secondary-fixed-dim": "#ffb95f",
+                        "secondary": "#855300",
+                        "surface-variant": "#e3e1e9",
+                        "tertiary-container": "#6e2c00",
+                        "on-error": "#ffffff",
+                        "error": "#ba1a1a",
+                        "on-secondary-fixed": "#2a1700",
+                        "surface-bright": "#faf8ff",
+                        "on-secondary": "#ffffff",
+                        "background": "#faf8ff",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-low": "#f4f3fa",
+                        "inverse-primary": "#b6c4ff",
+                        "primary-fixed": "#dce1ff",
+                        "on-surface-variant": "#444651",
+                        "surface-tint": "#4059aa",
+                        "surface-container-highest": "#e3e1e9",
+                        "outline-variant": "#c5c5d3",
+                        "on-primary-container": "#90a8ff",
+                        "on-primary": "#ffffff",
+                        "tertiary": "#4b1c00",
+                        "surface-dim": "#dad9e1",
+                        "tertiary-fixed": "#ffdbcb",
+                        "surface-container-high": "#e9e7ef",
+                        "secondary-fixed": "#ffddb8",
+                        "on-surface": "#1a1b21",
+                        "tertiary-fixed-dim": "#ffb691",
+                        "on-tertiary-fixed-variant": "#773205",
+                        "on-tertiary-fixed": "#341100",
+                        "on-primary-fixed-variant": "#264191",
+                        "outline": "#757682",
+                        "on-secondary-container": "#684000",
+                        "inverse-on-surface": "#f1f0f7"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    spacing: {
+                        "2xl": "48px",
+                        "sm": "8px",
+                        "base": "8px",
+                        "3xl": "64px",
+                        "xl": "32px",
+                        "lg": "24px",
+                        "xs": "4px",
+                        "md": "16px"
+                    },
+                    fontFamily: {
+                        "body-reading": ["Newsreader", "serif"],
+                        "h2-editorial": ["Newsreader", "serif"],
+                        "ui-header": ["Inter", "sans-serif"],
+                        "ui-label": ["Inter", "sans-serif"],
+                        "ui-body": ["Inter", "sans-serif"],
+                        "h1-editorial": ["Newsreader", "serif"]
+                    },
+                    fontSize: {
+                        "body-reading": ["18px", { lineHeight: "1.6", fontWeight: "400" }],
+                        "h2-editorial": ["32px", { lineHeight: "1.3", fontWeight: "500" }],
+                        "ui-header": ["16px", { lineHeight: "1.4", letterSpacing: "-0.01em", fontWeight: "600" }],
+                        "ui-label": ["12px", { lineHeight: "1", letterSpacing: "0.02em", fontWeight: "500" }],
+                        "ui-body": ["14px", { lineHeight: "1.5", fontWeight: "400" }],
+                        "h1-editorial": ["48px", { lineHeight: "1.2", fontWeight: "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style type="text/tailwindcss">
+        @layer utilities {
+            .material-symbols-outlined {
+                font-family: 'Material Symbols Outlined';
+                font-weight: normal;
+                font-style: normal;
+                font-size: 24px;
+                line-height: 1;
+                letter-spacing: normal;
+                text-transform: none;
+                display: inline-block;
+                white-space: nowrap;
+                word-wrap: normal;
+                direction: ltr;
+                -webkit-font-feature-settings: 'liga';
+                -webkit-font-smoothing: antialiased;
+            }
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background h-screen overflow-hidden font-ui-body">
+<!-- BACKGROUND APP STRUCTURE (Simulated Landing Home) -->
+<!-- TopAppBar from JSON -->
+<header class="fixed top-0 left-0 w-full z-10 flex justify-between items-center px-8 h-16 bg-surface-container-lowest border-b border-outline-variant transition-colors duration-200">
+<div class="flex items-center gap-md">
+<span class="text-xl font-black font-h2-editorial text-primary-container">ElectionEdu</span>
+</div>
+<nav class="hidden md:flex gap-lg">
+<a class="font-ui-header text-ui-header text-on-surface-variant hover:text-primary-container transition-colors" href="#">How to Vote</a>
+<a class="font-ui-header text-ui-header text-primary-container border-b-2 border-primary-container pb-1" href="#">Candidates</a>
+<a class="font-ui-header text-ui-header text-on-surface-variant hover:text-primary-container transition-colors" href="#">Districts</a>
+</nav>
+<div class="flex gap-md text-on-surface-variant">
+<button class="hover:text-primary-container transition-colors"><span class="material-symbols-outlined">language</span></button>
+<button class="hover:text-primary-container transition-colors"><span class="material-symbols-outlined">account_circle</span></button>
+</div>
+</header>
+<div class="flex h-screen pt-16">
+<!-- SideNavBar from JSON -->
+<aside class="hidden md:flex flex-col w-64 h-full border-r border-outline-variant bg-surface-container-lowest py-6 justify-between shrink-0">
+<div>
+<div class="px-md mb-lg">
+<h3 class="font-ui-header text-ui-header text-primary-container">Civic Portal</h3>
+<p class="font-ui-label text-ui-label text-on-surface-variant mt-xs">Voter Information</p>
+</div>
+<nav class="flex flex-col gap-sm px-sm">
+<a class="flex items-center gap-md px-md py-sm rounded-lg bg-surface-container-high text-primary-container font-ui-header text-ui-header shadow-sm" href="#"><span class="material-symbols-outlined">dashboard</span> Dashboard</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors font-ui-body text-ui-body" href="#"><span class="material-symbols-outlined">how_to_vote</span> Ballot Guide</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors font-ui-body text-ui-body" href="#"><span class="material-symbols-outlined">event</span> Election Dates</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors font-ui-body text-ui-body" href="#"><span class="material-symbols-outlined">library_books</span> Civic Library</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors font-ui-body text-ui-body" href="#"><span class="material-symbols-outlined">fact_check</span> My Checklist</a>
+</nav>
+</div>
+<div class="px-md">
+<button class="w-full bg-primary-container text-on-primary font-ui-header text-ui-header py-sm rounded-xl hover:opacity-90 transition-opacity">Register to Vote</button>
+</div>
+</aside>
+<!-- Dummy Main Content Area -->
+<main class="flex-1 overflow-y-auto p-xl bg-surface">
+<div class="max-w-4xl mx-auto">
+<h1 class="font-h1-editorial text-h1-editorial text-on-background mb-lg">Welcome to Your Civic Dashboard</h1>
+<p class="font-body-reading text-body-reading text-on-surface-variant mb-xl">Prepare for the upcoming election with trusted, official sources.</p>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<!-- Dummy Bento Cards -->
+<div class="bg-surface-container-lowest rounded-xl p-lg border border-outline-variant h-48 shadow-sm"></div>
+<div class="bg-surface-container-lowest rounded-xl p-lg border border-outline-variant h-48 shadow-sm"></div>
+<div class="bg-surface-container-lowest rounded-xl p-lg border border-outline-variant h-48 md:col-span-2 shadow-sm"></div>
+</div>
+</div>
+</main>
+</div>
+<!-- CHAT DRAWER OVERLAY -->
+<!-- Backdrop -->
+<div aria-hidden="true" class="fixed inset-0 bg-on-background/30 z-[60] backdrop-blur-sm transition-opacity"></div>
+<!-- Drawer Panel -->
+<aside aria-labelledby="drawer-title" aria-modal="true" class="fixed inset-y-0 right-0 z-[70] w-full md:w-[420px] bg-surface-container-lowest shadow-2xl flex flex-col border-l border-outline-variant transform transition-transform duration-300 translate-x-0" role="dialog">
+<!-- Drawer Header -->
+<header class="px-lg py-md border-b border-outline-variant bg-surface-container-lowest flex flex-col gap-sm shrink-0">
+<div class="flex items-center justify-between">
+<h2 class="font-ui-header text-ui-header text-on-background flex items-center gap-xs" id="drawer-title">
+<span class="material-symbols-outlined text-primary-container">psychology</span>
+                    Ask Election Edu
+                </h2>
+<button aria-label="Close drawer" class="text-on-surface-variant hover:text-on-surface rounded-full p-xs hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<div class="inline-flex items-center gap-xs px-2 py-1 bg-surface-container rounded-full w-fit border border-outline-variant/30">
+<span class="material-symbols-outlined text-[14px] text-primary-container" style="font-variation-settings: 'FILL' 1;">verified</span>
+<span class="font-ui-label text-ui-label text-on-surface-variant">Grounded in official sources</span>
+</div>
+</header>
+<!-- Message List Area (Scrollable) -->
+<div class="flex-1 overflow-y-auto p-lg flex flex-col gap-xl bg-surface">
+<!-- Welcome / Empty State Prompts (Appearing at the top of the chat history) -->
+<div class="flex flex-col gap-md">
+<div class="flex gap-sm items-start">
+<div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center shrink-0 border border-outline-variant">
+<span class="material-symbols-outlined text-on-surface-variant text-sm">robot_2</span>
+</div>
+<div class="bg-surface-container-lowest text-on-surface border border-outline-variant rounded-2xl rounded-tl-none px-md py-sm shadow-sm max-w-[90%]">
+<p class="font-ui-body text-ui-body">Hello! I'm your civic assistant. I can help you understand ballot measures, find polling locations, or check deadlines. Try asking one of these:</p>
+</div>
+</div>
+<div class="flex flex-col gap-sm ml-10">
+<button class="text-left px-md py-sm rounded-xl border border-outline-variant bg-surface-container-lowest hover:border-primary-container hover:bg-primary-fixed/10 transition-all font-ui-body text-ui-body text-primary-container">
+                        What is the voter registration deadline in my state?
+                    </button>
+<button class="text-left px-md py-sm rounded-xl border border-outline-variant bg-surface-container-lowest hover:border-primary-container hover:bg-primary-fixed/10 transition-all font-ui-body text-ui-body text-primary-container">
+                        Can you summarize Proposition 12 for me?
+                    </button>
+<button class="text-left px-md py-sm rounded-xl border border-outline-variant bg-surface-container-lowest hover:border-primary-container hover:bg-primary-fixed/10 transition-all font-ui-body text-ui-body text-primary-container">
+                        How does ranked-choice voting actually work?
+                    </button>
+</div>
+</div>
+<!-- User Message Bubble -->
+<div class="flex justify-end mt-4">
+<div class="bg-primary-container text-on-primary rounded-2xl rounded-tr-none px-md py-sm max-w-[85%] shadow-sm">
+<p class="font-ui-body text-ui-body">How does ranked-choice voting actually work?</p>
+</div>
+</div>
+<!-- Assistant Message Bubble -->
+<div class="flex flex-col gap-xs w-full">
+<div class="flex gap-sm items-start">
+<div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center shrink-0 border border-outline-variant mt-1">
+<span class="material-symbols-outlined text-primary-container text-sm">psychology</span>
+</div>
+<div class="bg-surface-container-lowest text-on-background border border-outline-variant rounded-2xl rounded-tl-none px-md py-sm shadow-sm max-w-[85%]">
+<p class="font-ui-body text-ui-body">Ranked-choice voting (RCV) allows voters to rank multiple candidates in order of preference rather than selecting just one.</p>
+<p class="font-ui-body text-ui-body mt-xs">If a candidate wins a majority of first-preference votes, they win. If not, the candidate with the fewest first-preference votes is eliminated, and their votes are redistributed to the voters' second choices. This process continues until a candidate achieves a majority.</p>
+</div>
+</div>
+<!-- Source Citations Row (Underneath Assistant Message) -->
+<div class="flex flex-wrap gap-sm ml-10 mt-xs">
+<a class="inline-flex items-center gap-xs px-2 py-1 bg-surface-container-lowest rounded-md border border-outline-variant hover:bg-surface-container-high transition-colors group" href="#">
+<span class="material-symbols-outlined text-[14px] text-on-surface-variant group-hover:text-primary-container transition-colors">public</span>
+<span class="font-body-reading text-[13px] italic text-on-surface-variant group-hover:text-on-surface transition-colors">ballotpedia.org</span>
+</a>
+<a class="inline-flex items-center gap-xs px-2 py-1 bg-surface-container-lowest rounded-md border border-outline-variant hover:bg-surface-container-high transition-colors group" href="#">
+<span class="material-symbols-outlined text-[14px] text-on-surface-variant group-hover:text-primary-container transition-colors">account_balance</span>
+<span class="font-body-reading text-[13px] italic text-on-surface-variant group-hover:text-on-surface transition-colors">ncsl.org</span>
+</a>
+</div>
+</div>
+<!-- User Message Bubble -->
+<div class="flex justify-end mt-2">
+<div class="bg-primary-container text-on-primary rounded-2xl rounded-tr-none px-md py-sm max-w-[85%] shadow-sm">
+<p class="font-ui-body text-ui-body">Is it used in my district?</p>
+</div>
+</div>
+<!-- Streaming Indicator -->
+<div class="flex gap-sm items-center mt-2">
+<div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center shrink-0 border border-outline-variant">
+<span class="material-symbols-outlined text-on-surface-variant text-sm">psychology</span>
+</div>
+<div class="flex items-center gap-sm bg-surface-container-lowest border border-outline-variant rounded-full px-md py-xs shadow-sm">
+<div class="w-2 h-2 rounded-full bg-secondary-container animate-pulse"></div>
+<span class="font-ui-label text-ui-label text-on-surface-variant">AI Generating...</span>
+</div>
+</div>
+<!-- Bottom padding to ensure last message isn't hidden behind composer -->
+<div class="h-4"></div>
+</div>
+<!-- Composer Footer -->
+<div class="p-lg border-t border-outline-variant bg-surface-container-lowest shrink-0">
+<div class="relative rounded-xl border border-outline-variant bg-surface focus-within:border-primary-container focus-within:ring-1 focus-within:ring-primary-container transition-all shadow-sm">
+<textarea class="w-full bg-transparent border-none focus:ring-0 resize-none font-ui-body text-ui-body p-md pb-12 min-h-[100px] text-on-background placeholder:text-outline" placeholder="Ask follow-up questions..."></textarea>
+<div class="absolute bottom-2 left-2 right-2 flex justify-between items-center">
+<!-- Attach Context Toggle -->
+<button class="flex items-center gap-xs text-on-surface-variant hover:text-primary-container hover:bg-surface-container-high px-2 py-1 rounded-md transition-colors" title="Include current page context">
+<span class="material-symbols-outlined text-[18px]">add_link</span>
+<span class="font-ui-label text-ui-label">Attach page context</span>
+</button>
+<!-- Send Button -->
+<button class="w-8 h-8 rounded-full bg-primary-container text-on-primary flex items-center justify-center hover:bg-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+<span class="material-symbols-outlined text-[18px] ml-0.5">arrow_upward</span>
+</button>
+</div>
+</div>
+<p class="text-center font-ui-label text-[10px] text-outline mt-sm">AI can make mistakes. Verify important civic info.</p>
+</div>
+</aside>
+</body></html>

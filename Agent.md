@@ -33,7 +33,7 @@ Build, test, and deploy an Election Process Education assistant that is:
 
 ## Tech Stack (do not change without approval)
 - Backend: Python 3.11, FastAPI, Uvicorn, httpx, pydantic v2
-- Frontend: React 18, Vite, TypeScript, Tailwind, Zustand
+- Frontend: STRICTLY Vite + React + Vitest, TypeScript, Tailwind, Zustand. NEVER USE NEXT.JS.
 - AI: Vertex AI SDK, Gemini Flash (classification) + Gemini Pro (answers)
 - Infra: Cloud Run, Artifact Registry, Secret Manager, Cloud Logging
 - CI: GitHub Actions → `gcloud run deploy --source .`
@@ -76,6 +76,7 @@ When fetching web content for RAG context:
 - Deploying to any platform other than Cloud Run.
 - Pushing to any branch other than `main`.
 - Adding analytics, trackers, or third-party scripts to the frontend.
+- Adding Next.js or any other framework. Use ONLY Vite + React + Vitest.
 
 ## Definition of Done (per task)
 - Code compiles, tests pass, lint clean.
