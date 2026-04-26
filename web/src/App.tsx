@@ -1,36 +1,40 @@
 import { useState } from 'react';
-import { SourceUploadForm } from './components/SourceUploadForm';
-import { ChatInterface } from './components/ChatInterface';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Navbar } from './components/Navbar';
+import { ChatDrawer } from './components/ChatDrawer';
+import HomePage from './pages/HomePage';
+import LearnPage from './pages/LearnPage';
+import LearnDetailPage from './pages/LearnDetailPage';
+import TimelinePage from './pages/TimelinePage';
+import GlossaryPage from './pages/GlossaryPage';
+import EligibilityPage from './pages/EligibilityPage';
+import PollingStationPage from './pages/PollingStationPage';
+import QuizPage from './pages/QuizPage';
+import SourcesPage from './pages/SourcesPage';
 
 function App() {
-  const [selectedDistrict, setSelectedDistrict] = useState<string>('');
+  const [chatOpen, setChatOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col md:flex-row">
-      {/* Sidebar for Settings/Upload */}
-      <div className="w-full md:w-[400px] border-r bg-white p-6 shadow-sm z-10 flex flex-col space-y-6 shrink-0 h-screen overflow-y-auto">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900 mb-1">ElectionBot Admin</h1>
-          <p className="text-sm text-slate-500">Manage sources and settings</p>
-        </div>
-        
-        <SourceUploadForm 
-          selectedDistrict={selectedDistrict} 
-          onDistrictChange={setSelectedDistrict} 
-        />
-        
-        <div className="mt-auto pt-6 border-t">
-          <p className="text-xs text-slate-400">
-            ElectionEducationBot System v1.0.0
-          </p>
-        </div>
+    <BrowserRouter>
+      <div className="min-h-screen bg-background">
+        <Navbar onChatToggle={() => setChatOpen(true)} />
+        <main className="max-w-7xl mx-auto px-4">
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/learn" element={<LearnPage />} />
+            <Route path="/learn/:slug" element={<LearnDetailPage />} />
+            <Route path="/timeline" element={<TimelinePage />} />
+            <Route path="/glossary" element={<GlossaryPage />} />
+            <Route path="/eligibility" element={<EligibilityPage />} />
+            <Route path="/polling" element={<PollingStationPage />} />
+            <Route path="/quiz" element={<QuizPage />} />
+            <Route path="/sources" element={<SourcesPage />} />
+          </Routes>
+        </main>
+        <ChatDrawer open={chatOpen} onClose={() => setChatOpen(false)} />
       </div>
-
-      {/* Main Chat Area */}
-      <div className="flex-1 p-6 h-screen overflow-hidden">
-        <ChatInterface selectedDistrict={selectedDistrict} />
-      </div>
-    </div>
+    </BrowserRouter>
   );
 }
 

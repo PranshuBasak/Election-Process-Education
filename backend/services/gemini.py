@@ -38,8 +38,8 @@ def _ensure_init() -> bool:
         from vertexai.generative_models import GenerativeModel
 
         vertexai.init(project=VERTEX_PROJECT, location=VERTEX_LOCATION)
-        _model_flash = GenerativeModel("gemini-2.0-flash")
-        _model_pro = GenerativeModel("gemini-2.0-pro")
+        _model_flash = GenerativeModel("gemini-3.1-flash")
+        _model_pro = GenerativeModel("gemini-3.1-flash")
         logger.info("Vertex AI initialised (project=%s, location=%s)", VERTEX_PROJECT, VERTEX_LOCATION)
         return True
     except Exception:
