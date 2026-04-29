@@ -68,7 +68,7 @@ export function ChatDrawer({ open, onClose }: ChatDrawerProps) {
         {/* Header */}
         <header className="flex items-center justify-between px-4 py-3 border-b border-outline-variant bg-surface-container-lowest">
           <div className="flex items-center gap-2 text-on-surface">
-            <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>sparkles</span>
+            <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}></span>
             <h2 className="font-ui-header text-ui-header">Election Assistant</h2>
           </div>
           <button onClick={onClose} className="p-2 rounded-full hover:bg-surface-variant text-on-surface-variant transition-colors" aria-label="Close chat">

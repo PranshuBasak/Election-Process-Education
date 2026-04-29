@@ -6,6 +6,12 @@ interface MainLayoutProps {
   children: ReactNode;
 }
 
+/**
+ * MainLayout provides the global shell for the application.
+ * It includes a responsive sidebar navigation that manages links to all major
+ * pages (Dashboard, Ballot Guide, Election Dates, etc.).
+ * It also manages mobile menu state (open/close).
+ */
 export function MainLayout({ children }: MainLayoutProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { pathname } = useLocation();
@@ -16,6 +22,9 @@ export function MainLayout({ children }: MainLayoutProps) {
     { to: '/timeline', label: 'Election Dates', icon: 'event' },
     { to: '/glossary', label: 'Civic Library', icon: 'library_books' },
     { to: '/eligibility', label: 'My Checklist', icon: 'fact_check' },
+    { to: '/polling', label: 'Polling Station', icon: 'where_to_vote' },
+    { to: '/quiz', label: 'Knowledge Quiz', icon: 'quiz' },
+    { to: '/sources', label: 'Verified Sources', icon: 'policy' },
   ];
 
   return (

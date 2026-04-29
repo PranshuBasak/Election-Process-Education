@@ -16,35 +16,56 @@ logger = logging.getLogger(__name__)
 # ── Configuration ────────────────────────────────────────────────────────
 VERTEX_PROJECT = os.getenv("VERTEX_PROJECT", "")
 VERTEX_LOCATION = os.getenv("VERTEX_LOCATION", "us-central1")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY") or os.getenv("NEXT_PUBLIC_GEMINI_API_KEY")
 
 _model_flash = None
 _model_pro = None
 _initialised = False
+_using_vertex = False
 
 
 def _ensure_init() -> bool:
-    """Lazy-initialise Vertex AI SDK. Returns True if ready."""
-    global _model_flash, _model_pro, _initialised
+    """Lazy-initialise AI SDK. Priority: API Key (AI Studio) > Vertex AI (ADC)."""
+    global _model_flash, _model_pro, _initialised, _using_vertex
     if _initialised:
         return _model_flash is not None
     _initialised = True
 
-    if not VERTEX_PROJECT:
-        logger.warning("VERTEX_PROJECT not set — Gemini calls will return fallback responses.")
-        return False
+    # 1. Try Gemini API Key (Google AI Studio)
+    if GEMINI_API_KEY:
+        try:
+            import google.generativeai as genai
+            genai.configure(api_key=GEMINI_API_KEY)
+            _model_flash = genai.GenerativeModel("gemini-3-flash-preview")
+            _model_pro = genai.GenerativeModel("gemini-3.1-pro-preview")
+            _using_vertex = False
+            logger.info("Gemini API initialised via API Key")
+            return True
+        except Exception:
+            logger.exception("Failed to initialise Gemini API with Key")
 
-    try:
-        import vertexai
-        from vertexai.generative_models import GenerativeModel
+    # 2. Try Vertex AI (ADC or API Key)
+    if VERTEX_PROJECT:
+        try:
+            import vertexai
+            from vertexai.generative_models import GenerativeModel
 
-        vertexai.init(project=VERTEX_PROJECT, location=VERTEX_LOCATION)
-        _model_flash = GenerativeModel("gemini-3.1-flash")
-        _model_pro = GenerativeModel("gemini-3.1-flash")
-        logger.info("Vertex AI initialised (project=%s, location=%s)", VERTEX_PROJECT, VERTEX_LOCATION)
-        return True
-    except Exception:
-        logger.exception("Failed to initialise Vertex AI")
-        return False
+            # Vertex AI also supports API keys now in newer SDKs
+            init_args = {"project": VERTEX_PROJECT, "location": VERTEX_LOCATION}
+            if GEMINI_API_KEY:
+                init_args["api_key"] = GEMINI_API_KEY
+
+            vertexai.init(**init_args)
+            _model_flash = GenerativeModel("gemini-3-flash-preview")
+            _model_pro = GenerativeModel("gemini-3.1-pro-preview")
+            _using_vertex = True
+            logger.info("Vertex AI initialised (project=%s, location=%s)", VERTEX_PROJECT, VERTEX_LOCATION)
+            return True
+        except Exception:
+            logger.exception("Failed to initialise Vertex AI")
+
+    logger.warning("No valid AI credentials found (GEMINI_API_KEY or VERTEX_PROJECT missing/invalid)")
+    return False
 
 
 # ── System Prompts ───────────────────────────────────────────────────────
