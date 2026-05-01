@@ -32,7 +32,7 @@ The app combines rule-based civic flows with a grounded AI assistant:
 | Firestore | Progress API | Persistent learning/checklist state |
 | Secret Manager | Deployment configuration | Keeps keys out of the repo |
 | Cloud Logging | Cloud Run observability | Debugging and audit trail |
-| Google Developer Knowledge MCP | Development workflow | Official Google docs inside Antigravity/Codex |
+| Google Developer Knowledge MCP | Development workflow | Official Google docs inside Antigravity/gemini cli |
 | Firestore managed MCP | Development workflow | Agent-assisted schema/rules/debugging |
 
 ## Tech Stack

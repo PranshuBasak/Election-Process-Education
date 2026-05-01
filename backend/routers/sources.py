@@ -92,7 +92,7 @@ _SOURCES: list[SourceInfo] = [
     SourceInfo(
         name="Google Developer Knowledge MCP",
         base_url="https://developerknowledge.googleapis.com/mcp",
-        purpose="Official Google developer documentation used during Antigravity/Codex implementation",
+        purpose="Official Google developer documentation used during Antigravity/gemini cli implementation",
         auth="oauth_or_api_key",
         status="ok",
     ),
