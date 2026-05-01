@@ -14,7 +14,7 @@ from backend.models.schemas import (
     EligibilityResult,
     PollingStationResult,
 )
-from backend.connectors import eci_voter
+from backend.connectors import eci_voter, google_maps
 
 router = APIRouter(prefix="/api", tags=["polling"])
 
@@ -24,6 +24,19 @@ async def polling_station(q: str = "") -> dict:
     """Search for a polling station by query string."""
     result = await eci_voter.search_polling_station(q)
     return result or {"message": "No results found. Please provide more details."}
+
+
+@router.get("/location/geocode")
+async def geocode_location(q: str = "") -> dict:
+    """Resolve an Indian place/address and return a Google Maps link."""
+    lat, lng, maps_url = await google_maps.geocode_address(q)
+    return {
+        "query": q,
+        "lat": lat,
+        "lng": lng,
+        "open_maps_url": maps_url,
+        "source": "google_maps_geocoding" if lat is not None and lng is not None else "google_maps_link",
+    }
 
 
 @router.post("/eligibility", response_model=EligibilityResult)

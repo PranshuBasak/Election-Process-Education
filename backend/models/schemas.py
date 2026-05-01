@@ -21,6 +21,7 @@ class ChatResponse(BaseModel):
     reply: str
     citations: list[Citation] = []
     intent: str = ""
+    grounded: bool = False
 
 
 # ── Timeline ─────────────────────────────────────────────────────────────
@@ -90,6 +91,7 @@ class PollingStationResult(BaseModel):
     address: str = ""
     lat: float | None = None
     lng: float | None = None
+    open_maps_url: str | None = None
     constituency: str = ""
     district: str = ""
     state: str = ""

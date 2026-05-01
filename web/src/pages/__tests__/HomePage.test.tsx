@@ -10,24 +10,25 @@ const renderWithRouter = (ui: React.ReactElement) => {
 describe('HomePage', () => {
   it('renders hero section correctly', () => {
     renderWithRouter(<HomePage />);
-    expect(screen.getByText(/Know Your Vote/i)).toBeInTheDocument();
-    expect(screen.getByText(/Shape Your Future/i)).toBeInTheDocument();
+    expect(screen.getByText(/Empowering the/i)).toBeInTheDocument();
+    expect(screen.getByText(/World's Largest Democracy/i)).toBeInTheDocument();
   });
 
-  it('renders all feature links', () => {
+  it('renders main feature links', () => {
     renderWithRouter(<HomePage />);
-    expect(screen.getByText('Learn')).toBeInTheDocument();
-    expect(screen.getByText('Election Timeline')).toBeInTheDocument();
-    expect(screen.getByText('Glossary')).toBeInTheDocument();
-    expect(screen.getByText('Am I Eligible?')).toBeInTheDocument();
+    expect(screen.getByText('Learning Hub')).toBeInTheDocument();
+    expect(screen.getByText('Phase Timeline')).toBeInTheDocument();
+  });
+
+  it('renders voter checklist', () => {
+    renderWithRouter(<HomePage />);
+    expect(screen.getByText('Voter Checklist')).toBeInTheDocument();
+    expect(screen.getByText('Check Eligibility')).toBeInTheDocument();
     expect(screen.getByText('Find Polling Station')).toBeInTheDocument();
-    expect(screen.getByText('Quiz Challenge')).toBeInTheDocument();
-    expect(screen.getByText('Data Sources')).toBeInTheDocument();
   });
 
-  it('renders stats section', () => {
+  it('renders fact of the day', () => {
     renderWithRouter(<HomePage />);
-    expect(screen.getByText('96.8 Cr')).toBeInTheDocument();
-    expect(screen.getByText('Registered Voters')).toBeInTheDocument();
+    expect(screen.getByText('Did You Know?')).toBeInTheDocument();
   });
 });

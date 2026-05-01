@@ -2,31 +2,58 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { api } from '@/lib/api';
 import type { LearnModule } from '@/lib/api';
-import { ArrowLeft, ExternalLink, Loader2, CheckCircle2 } from 'lucide-react';
+import { useUser } from '@/lib/user';
+import { ArrowLeft, ExternalLink, CheckCircle2 } from 'lucide-react';
 
 export default function LearnDetailPage() {
+  const { userId } = useUser();
   const { slug } = useParams<{ slug: string }>();
   const [mod, setMod] = useState<LearnModule | null>(null);
   const [loading, setLoading] = useState(true);
-  const [done, setDone] = useState<Set<number>>(new Set());
+  const [done, setSetDone] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     if (slug) api.learnModule(slug).then(setMod).catch(() => setMod(null)).finally(() => setLoading(false));
   }, [slug]);
 
-  const toggle = (order: number) => {
-    setDone(prev => {
+  const toggle = async (order: number) => {
+    const isAdding = !done.has(order);
+    setSetDone(prev => {
       const n = new Set(prev);
-      if (n.has(order)) {
-        n.delete(order);
-      } else {
-        n.add(order);
-      }
+      if (n.has(order)) n.delete(order);
+      else n.add(order);
       return n;
     });
+
+    if (userId && mod && isAdding) {
+      try {
+        await api.saveProgress(userId, {
+          module_slug: slug,
+          step_order: order,
+          last_activity: 'learn',
+          timestamp: new Date().toISOString()
+        });
+      } catch (err) {
+        console.error('Failed to save progress:', err);
+      }
+    }
   };
 
-  if (loading) return <div className="flex justify-center py-16"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (loading) return (
+    <div className="max-w-3xl mx-auto py-8 space-y-8 animate-pulse">
+      <div className="w-32 h-4 bg-muted rounded mb-8" />
+      <div className="space-y-4">
+        <div className="w-16 h-16 bg-muted rounded-full" />
+        <div className="w-1/2 h-8 bg-muted rounded" />
+        <div className="w-full h-4 bg-muted rounded" />
+      </div>
+      <div className="space-y-6 pt-8">
+        {[1, 2, 3].map(i => (
+          <div key={i} className="glass-card p-6 h-32" />
+        ))}
+      </div>
+    </div>
+  );
   if (!mod) return <div className="text-center py-16"><p>Module not found</p><Link to="/learn" className="text-primary hover:underline mt-4 inline-block">← Back to Learn</Link></div>;
 
   return (

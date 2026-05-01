@@ -71,26 +71,34 @@ async def search_by_epic(epic_or_query: str, state_code: str = "") -> dict | Non
         return None
 
 
-async def search_polling_station(query: str) -> dict | None:
-    """Search polling station — accepts address-like query or part number.
+from backend.connectors import google_maps
 
-    In practice the Voter Helpline API requires stateCode/acNo/partNo.
-    This wrapper attempts a best-effort lookup and returns structured data.
-    """
+async def search_polling_station(query: str) -> dict | None:
+    """Search polling station — geocodes the area and provides a link."""
+    if not query:
+        return None
+        
     try:
-        # The query may come from chat; we return guidance rather than
-        # a direct API hit since the endpoint needs structured params.
+        lat, lng, maps_url = await google_maps.geocode_address(query)
         return {
+            "name": f"Polling Stations near {query}",
+            "address": query,
+            "lat": lat,
+            "lng": lng,
+            "open_maps_url": maps_url,
             "message": (
-                "To find your polling station, please visit https://voters.eci.gov.in "
-                "and search using your EPIC number or name + address details. "
-                "You can also use the Voter Helpline app available on Android and iOS."
+                f"I've found the general area for '{query}'. "
+                "Please verify the exact booth number on your voter slip or "
+                "at https://voters.eci.gov.in."
             ),
             "source_url": "https://voters.eci.gov.in",
         }
     except Exception:
         logger.exception("Polling station search failed")
-        return None
+        return {
+            "message": "Unable to locate the area. Please try a more specific address or pincode.",
+            "source_url": "https://voters.eci.gov.in",
+        }
 
 
 async def track_form(reference_id: str, mobile: str = "") -> dict | None:

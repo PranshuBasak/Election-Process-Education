@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '@/lib/api';
 import type { LearnModule } from '@/lib/api';
-import { BookOpen, ArrowRight, Loader2 } from 'lucide-react';
+import { BookOpen, ArrowRight } from 'lucide-react';
 
 export default function LearnPage() {
   const [modules, setModules] = useState<LearnModule[]>([]);
@@ -24,7 +24,16 @@ export default function LearnPage() {
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-16"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
+        <div className="grid gap-5 sm:grid-cols-2">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="glass-card p-6 h-44 animate-pulse">
+              <div className="w-10 h-10 bg-muted rounded-lg mb-3" />
+              <div className="w-3/4 h-5 bg-muted rounded mb-2" />
+              <div className="w-full h-3 bg-muted rounded mb-1" />
+              <div className="w-2/3 h-3 bg-muted rounded" />
+            </div>
+          ))}
+        </div>
       ) : (
         <div className="grid gap-5 sm:grid-cols-2">
           {modules.map((m, i) => (

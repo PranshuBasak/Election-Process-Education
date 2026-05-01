@@ -2,9 +2,15 @@ import { useState } from 'react';
 import { MapPin, Search, ExternalLink } from 'lucide-react';
 import { api } from '@/lib/api';
 
+interface PollingResult {
+  message?: string;
+  source_url?: string;
+  open_maps_url?: string;
+}
+
 export default function PollingStationPage() {
   const [query, setQuery] = useState('');
-  const [result, setResult] = useState<{ message?: string; source_url?: string } | null>(null);
+  const [result, setResult] = useState<PollingResult | null>(null);
 
   const search = async () => {
     if (!query.trim()) return;
@@ -43,12 +49,20 @@ export default function PollingStationPage() {
       {result && (
         <div className="glass-card p-6 animate-slide-up space-y-3">
           <p className="text-sm text-muted-foreground leading-relaxed">{result.message}</p>
-          {result.source_url && (
-            <a href={result.source_url} target="_blank" rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary/10 text-primary text-sm font-medium hover:bg-primary/20 transition-colors">
-              <ExternalLink className="w-4 h-4" /> Visit Official Portal
-            </a>
-          )}
+          <div className="flex flex-wrap gap-2 pt-2">
+            {result.source_url && (
+              <a href={result.source_url} target="_blank" rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary/10 text-primary text-sm font-medium hover:bg-primary/20 transition-colors">
+                <ExternalLink className="w-4 h-4" /> Visit Official Portal
+              </a>
+            )}
+            {result.open_maps_url && (
+              <a href={result.open_maps_url} target="_blank" rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary text-secondary-foreground text-sm font-medium hover:bg-secondary/90 transition-colors">
+                <MapPin className="w-4 h-4" /> Open in Google Maps
+              </a>
+            )}
+          </div>
         </div>
       )}
 

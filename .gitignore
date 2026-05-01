@@ -12,6 +12,9 @@
 
 # testing
 /coverage
+coverage/
+web/coverage/
+.pytest_cache/
 
 # next.js
 /.next/
@@ -19,10 +22,15 @@
 
 # production
 /build
+dist/
+web/dist/
 
 # misc
 .DS_Store
 *.pem
+__pycache__/
+*.py[cod]
+*$py.class
 
 # debug
 npm-debug.log*
@@ -45,12 +53,7 @@ yarn-error.log*
 next-env.d.ts
 
 content.md
-Agent.md
 AGENTS.md
-API.md
 Brainstorm.md
-API.md
 CLAUDE.md
-Guide.md
 PLANNING.md
-Plan.md

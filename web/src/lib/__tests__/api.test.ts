@@ -7,7 +7,7 @@ describe('api client', () => {
     vi.clearAllMocks();
   });
 
-  const mockFetch = (data: any, ok = true, status = 200) => {
+  const mockFetch = (data: unknown, ok = true, status = 200) => {
     (global.fetch as Mock).mockResolvedValue({
       ok,
       status,

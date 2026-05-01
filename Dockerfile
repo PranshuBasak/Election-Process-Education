@@ -20,6 +20,7 @@ COPY backend/ ./backend/
 # Copy built React SPA
 COPY --from=frontend-builder /web/dist ./web/dist
 
-EXPOSE 8080
+# Cloud Run listens on $PORT, default to 8080
+ENV PORT 8080
 
-CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8080"]
+CMD exec gunicorn --bind :$PORT --workers 1 --worker-class uvicorn.workers.UvicornWorker --threads 8 backend.main:app

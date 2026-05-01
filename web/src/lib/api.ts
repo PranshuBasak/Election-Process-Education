@@ -24,6 +24,7 @@ export interface ChatResponse {
   reply: string;
   citations: Citation[];
   intent: string;
+  grounded: boolean;
 }
 
 export interface TimelineItem {
@@ -90,6 +91,14 @@ export interface SourceInfo {
   status: string;
 }
 
+export interface ProgressData {
+  completed_modules?: string[];
+  quiz_scores?: Record<string, number>;
+  checklist?: Record<string, boolean>;
+  preferred_locale?: string;
+  [key: string]: string | number | boolean | string[] | Record<string, number> | Record<string, boolean> | undefined;
+}
+
 /* ── API Calls ──────────────────────────────────────────────────────── */
 
 export const api = {
@@ -123,7 +132,19 @@ export const api = {
 
   sources: () => request<{ sources: SourceInfo[] }>('/sources'),
 
-  polling: (q: string) => request<{ message?: string; source_url?: string }>(`/polling?q=${encodeURIComponent(q)}`),
+  polling: (q: string) => request<{ message?: string; source_url?: string; open_maps_url?: string }>(`/polling?q=${encodeURIComponent(q)}`),
 
   health: () => request<{ status: string; version: string }>('/health'),
+  
+  saveProgress: (userId: string, data: ProgressData) =>
+    request<{ status: string; persisted?: boolean }>('/user/progress', {
+      method: 'POST',
+      headers: { 'X-User-ID': userId },
+      body: JSON.stringify({ data }),
+    }),
+
+  getProgress: (userId: string) =>
+    request<ProgressData>('/user/progress', {
+      headers: { 'X-User-ID': userId },
+    }),
 };

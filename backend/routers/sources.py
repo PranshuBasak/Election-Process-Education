@@ -68,6 +68,41 @@ _SOURCES: list[SourceInfo] = [
         auth="api_key",
         status="ok",
     ),
+    SourceInfo(
+        name="Google Maps Platform",
+        base_url="https://maps.googleapis.com/maps/api/geocode",
+        purpose="Geocoding voter-entered places and generating Google Maps links",
+        auth="api_key",
+        status="ok",
+    ),
+    SourceInfo(
+        name="Gemini with Google Search Grounding",
+        base_url="https://ai.google.dev/gemini-api/docs/google-search",
+        purpose="Grounded assistant answers with current web citations when enabled",
+        auth="api_key_or_vertex",
+        status="ok",
+    ),
+    SourceInfo(
+        name="Google Cloud Firestore",
+        base_url="https://firestore.googleapis.com",
+        purpose="Saved learning progress, quiz scores, checklist state, and preferred language",
+        auth="iam",
+        status="ok",
+    ),
+    SourceInfo(
+        name="Google Developer Knowledge MCP",
+        base_url="https://developerknowledge.googleapis.com/mcp",
+        purpose="Official Google developer documentation used during Antigravity/Codex implementation",
+        auth="oauth_or_api_key",
+        status="ok",
+    ),
+    SourceInfo(
+        name="Google Cloud Run",
+        base_url="https://cloud.google.com/run",
+        purpose="Public HTTPS deployment for the full-stack app",
+        auth="iam",
+        status="ok",
+    ),
 ]
 
 

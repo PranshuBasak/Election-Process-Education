@@ -20,24 +20,40 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY") or os.getenv("NEXT_PUBLIC_GEMINI_AP
 
 _model_flash = None
 _model_pro = None
+_genai_client = None
+_genai_types = None
 _initialised = False
 _using_vertex = False
+_using_genai_client = False
 
 
 def _ensure_init() -> bool:
     """Lazy-initialise AI SDK. Priority: API Key (AI Studio) > Vertex AI (ADC)."""
-    global _model_flash, _model_pro, _initialised, _using_vertex
+    global _model_flash, _model_pro, _genai_client, _genai_types, _initialised, _using_vertex, _using_genai_client
     if _initialised:
-        return _model_flash is not None
+        return _model_flash is not None or _genai_client is not None
     _initialised = True
 
     # 1. Try Gemini API Key (Google AI Studio)
     if GEMINI_API_KEY:
         try:
+            from google import genai
+            from google.genai import types
+
+            _genai_client = genai.Client(api_key=GEMINI_API_KEY)
+            _genai_types = types
+            _using_genai_client = True
+            _using_vertex = False
+            logger.info("Gemini API initialised via google-genai client")
+            return True
+        except Exception:
+            logger.exception("Failed to initialise google-genai client with API Key")
+
+        try:
             import google.generativeai as genai
             genai.configure(api_key=GEMINI_API_KEY)
-            _model_flash = genai.GenerativeModel("gemini-3-flash-preview")
-            _model_pro = genai.GenerativeModel("gemini-3.1-pro-preview")
+            _model_flash = genai.GenerativeModel("gemini-2.5-flash")
+            _model_pro = genai.GenerativeModel("gemini-2.5-pro")
             _using_vertex = False
             logger.info("Gemini API initialised via API Key")
             return True
@@ -48,7 +64,7 @@ def _ensure_init() -> bool:
     if VERTEX_PROJECT:
         try:
             import vertexai
-            from vertexai.generative_models import GenerativeModel
+            from vertexai.generative_models import GenerativeModel, Tool, GoogleSearchRetrieval
 
             # Vertex AI also supports API keys now in newer SDKs
             init_args = {"project": VERTEX_PROJECT, "location": VERTEX_LOCATION}
@@ -56,16 +72,56 @@ def _ensure_init() -> bool:
                 init_args["api_key"] = GEMINI_API_KEY
 
             vertexai.init(**init_args)
-            _model_flash = GenerativeModel("gemini-3-flash-preview")
-            _model_pro = GenerativeModel("gemini-3.1-pro-preview")
+            
+            # Add Grounding Tool
+            search_tool = Tool.from_google_search_retrieval(
+                google_search_retrieval=GoogleSearchRetrieval()
+            )
+            
+            _model_flash = GenerativeModel("gemini-2.5-flash")
+            _model_pro = GenerativeModel(
+                "gemini-2.5-pro",
+                tools=[search_tool]
+            )
             _using_vertex = True
-            logger.info("Vertex AI initialised (project=%s, location=%s)", VERTEX_PROJECT, VERTEX_LOCATION)
+            logger.info("Vertex AI initialised with Grounding (project=%s, location=%s)", VERTEX_PROJECT, VERTEX_LOCATION)
             return True
         except Exception:
             logger.exception("Failed to initialise Vertex AI")
 
     logger.warning("No valid AI credentials found (GEMINI_API_KEY or VERTEX_PROJECT missing/invalid)")
     return False
+
+
+def _generate_with_genai_client(prompt: str, *, model: str = "gemini-2.5-flash", grounded: bool = False) -> Any:
+    """Generate text with the current Google Gen AI SDK."""
+    if _genai_client is None:
+        raise RuntimeError("google-genai client is not initialised")
+
+    config = None
+    if grounded and _genai_types is not None:
+        grounding_tool = _genai_types.Tool(google_search=_genai_types.GoogleSearch())
+        config = _genai_types.GenerateContentConfig(tools=[grounding_tool])
+
+    return _genai_client.models.generate_content(model=model, contents=prompt, config=config)
+
+
+def _extract_grounding_citations(resp: Any) -> list[dict[str, str]]:
+    """Extract web citations from Gemini grounding metadata when available."""
+    citations: list[dict[str, str]] = []
+    try:
+        metadata = resp.candidates[0].grounding_metadata
+        chunks = getattr(metadata, "grounding_chunks", None) or []
+        for chunk in chunks:
+            web = getattr(chunk, "web", None)
+            if web:
+                title = getattr(web, "title", "") or "Google Search result"
+                url = getattr(web, "uri", "") or getattr(web, "url", "")
+                if url:
+                    citations.append({"title": title, "url": url, "source": "Google Search"})
+    except Exception:
+        pass
+    return citations
 
 
 # ── System Prompts ───────────────────────────────────────────────────────
@@ -94,7 +150,7 @@ Do NOT include markdown fences or extra text.
 # ── Public API ───────────────────────────────────────────────────────────
 async def classify_intent(message: str) -> str:
     """Classify user message into an intent using Flash."""
-    if not _ensure_init() or _model_flash is None:
+    if not _ensure_init() or (_model_flash is None and _genai_client is None):
         return "general_question"
 
     prompt = (
@@ -106,7 +162,10 @@ async def classify_intent(message: str) -> str:
         "Return ONLY the intent string, nothing else."
     )
     try:
-        resp = _model_flash.generate_content(prompt)
+        if _using_genai_client:
+            resp = _generate_with_genai_client(prompt, model="gemini-2.5-flash")
+        else:
+            resp = _model_flash.generate_content(prompt)
         intent = resp.text.strip().lower().replace('"', "").replace("'", "")
         return intent
     except Exception:
@@ -120,7 +179,7 @@ async def generate_answer(
     locale: str = "en",
 ) -> dict[str, Any]:
     """Generate a grounded answer with citations using Pro."""
-    if not _ensure_init() or _model_pro is None:
+    if not _ensure_init() or (_model_pro is None and _genai_client is None):
         return {
             "reply": (
                 "I'm currently unable to connect to the AI service. "
@@ -130,37 +189,66 @@ async def generate_answer(
         }
 
     locale_instruction = "Respond in Hindi." if locale == "hi" else "Respond in English."
+    if context.strip():
+        context_instruction = (
+            f"--- UNTRUSTED CONTEXT START ---\n{context[:6000]}\n--- UNTRUSTED CONTEXT END ---\n\n"
+            "Answer only from the context above."
+        )
+    else:
+        context_instruction = (
+            "No connector context was available. Use Google Search grounding if it is configured, "
+            "prioritize official Indian election sources, and cite the source URLs. If you cannot "
+            "find a verified source, respond: \"I don't have verified information on that.\""
+        )
+
     prompt = (
         f"{SYSTEM_PROMPT_RAG}\n\n"
         f"{locale_instruction}\n\n"
-        f"--- UNTRUSTED CONTEXT START ---\n{context[:6000]}\n--- UNTRUSTED CONTEXT END ---\n\n"
+        f"{context_instruction}\n\n"
         f"User question: {question}\n\n"
         "Provide a helpful answer with source citations in this JSON format:\n"
         '{"reply": "...", "citations": [{"title": "...", "url": "..."}]}\n'
         "Return ONLY the JSON, no markdown fences."
     )
     try:
-        resp = _model_pro.generate_content(prompt)
+        if _using_genai_client:
+            resp = _generate_with_genai_client(prompt, model="gemini-2.5-flash", grounded=True)
+        else:
+            resp = _model_pro.generate_content(prompt)
         text = resp.text.strip()
-        # Try to parse JSON
-        if text.startswith("```"):
-            text = text.split("```")[1]
-            if text.startswith("json"):
-                text = text[4:]
-        data = json.loads(text)
-        return {
-            "reply": data.get("reply", text),
-            "citations": data.get("citations", []),
-        }
-    except (json.JSONDecodeError, Exception):
-        logger.exception("Answer generation failed or returned non-JSON")
+        
+        grounding_citations = _extract_grounding_citations(resp)
+
+        # Try to parse JSON from the reply text
+        clean_text = text
+        if clean_text.startswith("```"):
+            clean_text = clean_text.split("```")[1]
+            if clean_text.startswith("json"):
+                clean_text = clean_text[4:]
+        
         try:
-            return {"reply": resp.text.strip(), "citations": []}
-        except Exception:
-            return {
-                "reply": "I encountered an error processing your question. Please try again.",
-                "citations": [],
-            }
+            data = json.loads(clean_text)
+            reply = data.get("reply", clean_text)
+            provided_citations = data.get("citations", [])
+        except json.JSONDecodeError:
+            reply = clean_text
+            provided_citations = []
+
+        # Combine citations
+        all_citations = provided_citations + grounding_citations
+        
+        return {
+            "reply": reply,
+            "citations": all_citations,
+            "grounded": len(grounding_citations) > 0
+        }
+    except Exception:
+        logger.exception("Answer generation failed")
+        return {
+            "reply": "I encountered an error processing your question. Please try again.",
+            "citations": [],
+            "grounded": False
+        }
 
 
 async def generate_quiz(
@@ -170,7 +258,7 @@ async def generate_quiz(
     locale: str = "en",
 ) -> list[dict]:
     """Generate quiz questions using Pro."""
-    if not _ensure_init() or _model_pro is None:
+    if not _ensure_init() or (_model_pro is None and _genai_client is None):
         return _fallback_quiz(topic)
 
     locale_instruction = "Questions and options in Hindi." if locale == "hi" else "Questions and options in English."
@@ -183,7 +271,10 @@ async def generate_quiz(
         "Focus on the Indian election process, ECI guidelines, and constitutional provisions."
     )
     try:
-        resp = _model_pro.generate_content(prompt)
+        if _using_genai_client:
+            resp = _generate_with_genai_client(prompt, model="gemini-2.5-flash")
+        else:
+            resp = _model_pro.generate_content(prompt)
         text = resp.text.strip()
         if text.startswith("```"):
             text = text.split("```")[1]
@@ -197,12 +288,15 @@ async def generate_quiz(
 
 async def translate_text(text: str, target: str = "hi") -> str:
     """Translate text using Flash."""
-    if not _ensure_init() or _model_flash is None:
+    if not _ensure_init() or (_model_flash is None and _genai_client is None):
         return text
 
     try:
         prompt = f"Translate the following text to {'Hindi' if target == 'hi' else 'English'}. Return ONLY the translation.\n\n{text}"
-        resp = _model_flash.generate_content(prompt)
+        if _using_genai_client:
+            resp = _generate_with_genai_client(prompt, model="gemini-2.5-flash")
+        else:
+            resp = _model_flash.generate_content(prompt)
         return resp.text.strip()
     except Exception:
         logger.exception("Translation failed")
@@ -211,7 +305,7 @@ async def translate_text(text: str, target: str = "hi") -> str:
 
 async def generate_definition(term: str, context: str = "", locale: str = "en") -> str:
     """Generate a definition for a glossary term."""
-    if not _ensure_init() or _model_flash is None:
+    if not _ensure_init() or (_model_flash is None and _genai_client is None):
         return f"{term}: Definition not available — AI service offline."
 
     locale_instruction = "Respond in Hindi." if locale == "hi" else "Respond in English."
@@ -224,7 +318,10 @@ async def generate_definition(term: str, context: str = "", locale: str = "en") 
         prompt += f"\nAdditional context:\n--- UNTRUSTED CONTEXT START ---\n{context[:3000]}\n--- UNTRUSTED CONTEXT END ---\n"
 
     try:
-        resp = _model_flash.generate_content(prompt)
+        if _using_genai_client:
+            resp = _generate_with_genai_client(prompt, model="gemini-2.5-flash")
+        else:
+            resp = _model_flash.generate_content(prompt)
         return resp.text.strip()
     except Exception:
         logger.exception("Definition generation failed")

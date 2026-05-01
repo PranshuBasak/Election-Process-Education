@@ -69,6 +69,6 @@ describe('GlossaryPage', () => {
 
     fireEvent.change(screen.getByPlaceholderText(/Search terms/i), { target: { value: 'xyz' } });
     
-    expect(screen.getByText('No terms found')).toBeInTheDocument();
+    expect(screen.getByText(/No terms found/i)).toBeInTheDocument();
   });
 });

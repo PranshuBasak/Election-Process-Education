@@ -26,9 +26,9 @@ describe('ChatDrawer', () => {
 
   it('renders correctly when open', () => {
     render(<ChatDrawer open={true} onClose={mockOnClose} />);
-    expect(screen.getByText(/Election AI Assistant/i)).toBeInTheDocument();
+    expect(screen.getByText(/Election Assistant/i)).toBeInTheDocument();
     expect(screen.getByText(/Namaste!/i)).toBeInTheDocument();
-    expect(screen.getByPlaceholderText(/Ask about elections/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/Type your message/i)).toBeInTheDocument();
   });
 
   it('sends message and displays reply', async () => {
@@ -40,7 +40,7 @@ describe('ChatDrawer', () => {
 
     render(<ChatDrawer open={true} onClose={mockOnClose} />);
     
-    const input = screen.getByPlaceholderText(/Ask about elections/i);
+    const input = screen.getByPlaceholderText(/Type your message/i);
     fireEvent.change(input, { target: { value: 'Is election day a holiday?' } });
     
     const sendButton = screen.getByLabelText(/Send message/i);
@@ -61,7 +61,7 @@ describe('ChatDrawer', () => {
 
     render(<ChatDrawer open={true} onClose={mockOnClose} />);
     
-    const input = screen.getByPlaceholderText(/Ask about elections/i);
+    const input = screen.getByPlaceholderText(/Type your message/i);
     fireEvent.change(input, { target: { value: 'hello' } });
     fireEvent.click(screen.getByLabelText(/Send message/i));
 

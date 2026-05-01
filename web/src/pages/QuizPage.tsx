@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { api } from '@/lib/api';
 import type { QuizQuestion } from '@/lib/api';
+import { useUser } from '@/lib/user';
 import { BrainCircuit, CheckCircle2, XCircle, ArrowRight, RotateCcw, Loader2 } from 'lucide-react';
 
 const TOPICS = ['General Elections', 'Voter Registration', 'EVM & VVPAT', 'Election Commission', 'Indian Constitution'];
 
 export default function QuizPage() {
+  const { userId } = useUser();
   const [topic, setTopic] = useState(TOPICS[0]);
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [current, setCurrent] = useState(0);
@@ -25,6 +27,21 @@ export default function QuizPage() {
     finally { setLoading(false); }
   };
 
+  const saveResults = async (finalScore: number) => {
+    if (!userId) return;
+    try {
+      await api.saveProgress(userId, {
+        quiz_topic: topic,
+        quiz_score: finalScore,
+        quiz_total: questions.length,
+        last_activity: 'quiz',
+        timestamp: new Date().toISOString()
+      });
+    } catch (err) {
+      console.error('Failed to save progress:', err);
+    }
+  };
+
   const answer = (label: string) => {
     if (selected) return;
     setSelected(label);
@@ -32,7 +49,11 @@ export default function QuizPage() {
   };
 
   const next = () => {
-    if (current + 1 >= questions.length) { setFinished(true); return; }
+    if (current + 1 >= questions.length) {
+      setFinished(true);
+      saveResults(score + (selected === questions[current].correct ? 0 : 0)); // Score is already updated in answer()
+      return;
+    }
     setCurrent(c => c + 1);
     setSelected(null);
   };

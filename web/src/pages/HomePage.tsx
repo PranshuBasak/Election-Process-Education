@@ -24,7 +24,7 @@ export default function HomePage() {
     "The voting age in India was reduced from 21 to 18 in 1989."
   ];
   
-  const [currentFact] = useState(facts[Math.floor(Math.random() * facts.length)]);
+  const [currentFact] = useState(() => facts[Math.floor(Math.random() * facts.length)]);
 
   const handleAsk = async (searchQuery: string) => {
     if (!searchQuery.trim()) return;
@@ -36,7 +36,7 @@ export default function HomePage() {
     try {
       const result = await api.chat(searchQuery);
       setResponse(result);
-    } catch (error) {
+    } catch {
       setError('Sorry, I am having trouble connecting to the server. Please try again.');
     } finally {
       setIsLoading(false);
@@ -230,67 +230,80 @@ export default function HomePage() {
 
       {/* Chat Response Overlay if active */}
       {(isLoading || error || response) && (
-        <div className="fixed inset-0 bg-scrim/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="w-full max-w-2xl bg-surface-container-lowest border border-surface-variant rounded-2xl p-8 shadow-2xl animate-in zoom-in-95 duration-300">
-            <div className="flex justify-between items-center mb-6">
+        <div className="fixed inset-0 bg-scrim/40 backdrop-blur-sm z-50 flex items-start sm:items-center justify-center p-3 sm:p-6 overflow-y-auto">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="home-ai-response-title"
+            className="w-full max-w-2xl max-h-[88vh] bg-surface-container-lowest border border-surface-variant rounded-2xl shadow-2xl animate-in zoom-in-95 duration-300 flex flex-col overflow-hidden"
+          >
+            <div className="flex justify-between items-center gap-4 p-4 sm:p-6 border-b border-surface-variant shrink-0">
               <div className="flex items-center gap-3 text-primary">
                 <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
                   <span className="material-symbols-outlined">auto_awesome</span>
                 </div>
-                <div>
-                  <h3 className="font-bold text-on-surface">ElectionEdu AI</h3>
+                <div className="min-w-0">
+                  <h3 id="home-ai-response-title" className="font-bold text-on-surface">ElectionEdu AI</h3>
                   <p className="text-xs text-outline-variant uppercase tracking-tighter">Verified Information</p>
                 </div>
               </div>
               <button 
                 onClick={() => { setResponse(null); setError(null); }}
+                aria-label="Close AI response"
                 className="w-10 h-10 rounded-full hover:bg-surface-container flex items-center justify-center transition-colors"
               >
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
 
-            {isLoading && (
-              <div className="py-12 flex flex-col items-center gap-4">
-                <div className="relative">
-                  <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
-                  </div>
-                </div>
-                <p className="font-medium text-on-surface-variant animate-pulse">Scanning verified databases...</p>
-              </div>
-            )}
-
-            {error && (
-              <div className="p-4 bg-error-container/10 border border-error/20 rounded-xl flex items-center gap-3 text-error">
-                <span className="material-symbols-outlined">error</span>
-                <p className="text-sm font-medium">{error}</p>
-              </div>
-            )}
-
-            {response && (
-              <div className="space-y-6">
-                <div className="font-body-reading text-lg text-on-surface leading-relaxed max-h-[50vh] overflow-y-auto pr-2 custom-scrollbar">
-                  {response.reply}
-                </div>
-                
-                {response.citations && response.citations.length > 0 && (
-                  <div className="pt-6 border-t border-surface-variant">
-                    <h4 className="text-xs font-bold text-outline uppercase tracking-widest mb-4">Official Sources</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {response.citations.map((cite, idx) => (
-                        <a key={idx} href={cite.url} target="_blank" rel="noopener noreferrer" 
-                          className="flex items-center gap-3 p-3 rounded-xl border border-surface-variant hover:border-primary/40 hover:bg-primary/5 transition-all group">
-                          <span className="material-symbols-outlined text-primary text-[20px]">description</span>
-                          <span className="text-sm font-medium text-on-surface-variant group-hover:text-primary truncate">{cite.title}</span>
-                        </a>
-                      ))}
+            <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6">
+              {isLoading && (
+                <div className="py-12 flex flex-col items-center gap-4">
+                  <div className="relative">
+                    <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
                     </div>
                   </div>
-                )}
-              </div>
-            )}
+                  <p className="font-medium text-on-surface-variant animate-pulse">Scanning verified databases...</p>
+                </div>
+              )}
+
+              {error && (
+                <div className="p-4 bg-error-container/10 border border-error/20 rounded-xl flex items-center gap-3 text-error">
+                  <span className="material-symbols-outlined">error</span>
+                  <p className="text-sm font-medium">{error}</p>
+                </div>
+              )}
+
+              {response && (
+                <div className="space-y-5">
+                  <div className="font-body-reading text-base sm:text-lg text-on-surface leading-relaxed whitespace-pre-wrap break-words">
+                    {response.reply}
+                  </div>
+                  
+                  {response.citations && response.citations.length > 0 && (
+                    <div className="pt-5 border-t border-surface-variant">
+                      <h4 className="text-xs font-bold text-outline uppercase tracking-widest mb-3">Official Sources</h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        {response.citations.slice(0, 8).map((cite, idx) => (
+                          <a key={idx} href={cite.url} target="_blank" rel="noopener noreferrer" 
+                            className="min-w-0 flex items-center gap-3 p-3 rounded-xl border border-surface-variant hover:border-primary/40 hover:bg-primary/5 transition-all group">
+                            <span className="material-symbols-outlined text-primary text-[20px] shrink-0">description</span>
+                            <span className="min-w-0 text-sm font-medium text-on-surface-variant group-hover:text-primary truncate">{cite.title}</span>
+                          </a>
+                        ))}
+                      </div>
+                      {response.citations.length > 8 && (
+                        <p className="mt-3 text-xs text-outline-variant">
+                          Showing 8 of {response.citations.length} sources.
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
@@ -310,4 +323,3 @@ export default function HomePage() {
     </div>
   );
 }
-

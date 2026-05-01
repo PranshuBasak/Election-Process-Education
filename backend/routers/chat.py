@@ -18,9 +18,7 @@ router = APIRouter(prefix="/api", tags=["chat"])
 
 @router.post("/chat", response_model=ChatResponse)
 async def chat(req: ChatRequest) -> ChatResponse:
-    logger.info(f"--- Chat Request Start ---")
-    logger.info(f"Message: {req.message}")
-    logger.info(f"Locale: {req.locale}")
+    logger.info("Chat request received locale=%s length=%s", req.locale, len(req.message))
     
     try:
         result = await answer_question(req.message, locale=req.locale)
@@ -35,6 +33,7 @@ async def chat(req: ChatRequest) -> ChatResponse:
             reply=result.get("reply", ""),
             citations=citations,
             intent=result.get("intent", ""),
+            grounded=bool(result.get("grounded", False)),
         )
         
         logger.info(f"Outgoing reply length: {len(response.reply)}")

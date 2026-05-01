@@ -6,6 +6,7 @@ interface Message {
   role: 'user' | 'assistant';
   content: string;
   citations?: Citation[];
+  grounded?: boolean;
 }
 
 interface ChatDrawerProps {
@@ -40,7 +41,7 @@ export function ChatDrawer({ open, onClose }: ChatDrawerProps) {
       const res = await api.chat(text);
       setMessages((m) => [
         ...m,
-        { role: 'assistant', content: res.reply, citations: res.citations },
+        { role: 'assistant', content: res.reply, citations: res.citations, grounded: res.grounded },
       ]);
     } catch {
       setMessages((m) => [
@@ -63,13 +64,18 @@ export function ChatDrawer({ open, onClose }: ChatDrawerProps) {
       <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose} />
 
       {/* Chat Drawer */}
-      <div className="relative w-full max-w-md h-full bg-surface border-l border-outline-variant shadow-lg flex flex-col transform transition-transform duration-300 translate-x-0">
+      <div 
+        role="dialog" 
+        aria-modal="true" 
+        aria-labelledby="chat-drawer-title"
+        className="relative w-full max-w-md h-full bg-surface border-l border-outline-variant shadow-lg flex flex-col transform transition-transform duration-300 translate-x-0"
+      >
         
         {/* Header */}
         <header className="flex items-center justify-between px-4 py-3 border-b border-outline-variant bg-surface-container-lowest">
           <div className="flex items-center gap-2 text-on-surface">
             <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}></span>
-            <h2 className="font-ui-header text-ui-header">Election Assistant</h2>
+            <h2 id="chat-drawer-title" className="font-ui-header text-ui-header">Election Assistant</h2>
           </div>
           <button onClick={onClose} className="p-2 rounded-full hover:bg-surface-variant text-on-surface-variant transition-colors" aria-label="Close chat">
             <span className="material-symbols-outlined text-[20px]">close</span>
@@ -94,6 +100,12 @@ export function ChatDrawer({ open, onClose }: ChatDrawerProps) {
                 }`}
               >
                 <p className="whitespace-pre-wrap">{msg.content}</p>
+                {msg.grounded && (
+                  <div className="flex items-center gap-1.5 self-start px-2 py-0.5 bg-secondary/10 border border-secondary/20 rounded-full mt-1">
+                    <span className="material-symbols-outlined text-[14px] text-secondary" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
+                    <span className="text-[11px] font-medium text-secondary">Verified with Google Search grounding</span>
+                  </div>
+                )}
                 {msg.citations && msg.citations.length > 0 && (
                   <div className="mt-2 pt-2 border-t border-outline-variant flex flex-col gap-2">
                     <span className="font-ui-label text-ui-label text-on-surface-variant">Sources:</span>

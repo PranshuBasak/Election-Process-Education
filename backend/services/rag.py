@@ -15,6 +15,8 @@ from backend.connectors import eci_voter, eci_results, eci_schedule, data_gov_in
 
 logger = logging.getLogger(__name__)
 
+REGISTRATION_KEYWORDS = ("form 6", "register", "registration", "new voter", "voter id", "enrol", "enroll")
+
 # Intent → (primary_connector_func, fallback_func, cache_ttl)
 ROUTING_TABLE: dict[str, dict[str, Any]] = {
     "election_timeline": {
@@ -99,6 +101,16 @@ async def fetch_context(intent: str, message: str) -> str:
             "6. Registration can be done via Form 6 online at https://voters.eci.gov.in or through the Voter Helpline app.\n"
         )
 
+    if intent == "how_to_register":
+        context_parts.append(
+            "Indian Voter Registration (Source: https://voters.eci.gov.in):\n"
+            "1. Form 6 is used for new voter registration or inclusion of a name in the electoral roll.\n"
+            "2. Eligible Indian citizens can apply online at https://voters.eci.gov.in or through the Voter Helpline app.\n"
+            "3. Applicants generally need a photograph, proof of age, and proof of ordinary residence.\n"
+            "4. After submission, the applicant receives a reference number and the application may be verified by election officials.\n"
+            "5. Citizens should verify final details on the official Voters' Services Portal.\n"
+        )
+
     # Try primary connector
     primary_fn = route.get("primary")
     if primary_fn is not None:
@@ -130,7 +142,11 @@ async def fetch_context(intent: str, message: str) -> str:
 
 async def answer_question(message: str, locale: str = "en") -> dict[str, Any]:
     """Full RAG pipeline: classify → fetch context → generate answer."""
-    intent = await gemini.classify_intent(message)
+    lowered = message.lower()
+    if any(keyword in lowered for keyword in REGISTRATION_KEYWORDS):
+        intent = "how_to_register"
+    else:
+        intent = await gemini.classify_intent(message)
     context = await fetch_context(intent, message)
     result = await gemini.generate_answer(context, message, locale)
     result["intent"] = intent
