@@ -1,8 +1,8 @@
-# Stage 1: Build React frontend
-FROM node:18-alpine AS frontend-builder
+# Stage 1: Build Vite/React frontend
+FROM node:20-alpine AS frontend-builder
 WORKDIR /web
 COPY web/package.json web/package-lock.json* ./
-RUN npm install
+RUN npm ci --ignore-scripts
 COPY web/ ./
 RUN npm run build
 
@@ -10,15 +10,16 @@ RUN npm run build
 FROM python:3.11-slim
 WORKDIR /app
 
-RUN pip install poetry
+# Install Python dependencies via pip
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
 
-COPY pyproject.toml poetry.lock* ./
-RUN poetry config virtualenvs.create false \
-  && poetry install --no-interaction --no-ansi
+# Copy backend source
+COPY backend/ ./backend/
 
-COPY app/ ./app/
-COPY --from=frontend-builder /web/dist /web/dist
+# Copy built React SPA
+COPY --from=frontend-builder /web/dist ./web/dist
 
 EXPOSE 8080
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8080"]

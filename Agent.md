@@ -12,6 +12,8 @@ Build, test, and deploy an Election Process Education assistant that is:
 - Deployed as a single container to Google Cloud Run.
 - Hosted in a public GitHub repo, single `main` branch, total size < 1 MB.
 
+
+
 ## Hard Rules (never violate)
 1. Do NOT commit any election dataset, CSV, JSON dump, or scraped content
    to the repo. Data is fetched at runtime via connectors only.

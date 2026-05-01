@@ -154,7 +154,7 @@ GitHub Actions on push to `main`:
 - [ ] D9  Quiz, glossary, wizard, polling lookup
 - [ ] D10 i18n layer (EN/HI), theme switch, accessibility pass
 - [ ] D11 Prompt-injection tests, rate-limit tests, Lighthouse > 90
-- [ ] D12 Cloud Run deploy, smoke tests
+- [x] D12 Cloud Run deploy, smoke tests
 - [ ] D13 README, architecture diagram, screenshots, repo-size audit
 - [ ] D14 Submit GitHub URL + Cloud Run URL
 
