@@ -1,6 +1,6 @@
-"""LokDhaba connector — lokdhaba.ashoka.edu.in (TCPD, Ashoka University).
+"""LokDhaba connector for lokdhaba.ashoka.edu.in (TCPD, Ashoka University).
 
-Cleanest historical constituency-level results (1962→present).
+Cleanest historical constituency-level results (1962 to present).
 Powers: Longitudinal trend charts, historical_trend_for_constituency intent.
 """
 

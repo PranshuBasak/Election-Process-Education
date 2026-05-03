@@ -46,6 +46,7 @@ describe('SourcesPage', () => {
     }, { timeout: 10000 });
 
     expect(screen.getByText('The official portal of the Election Commission of India.')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Visit ECI Official Website/i })).toHaveAttribute('rel', 'noopener noreferrer');
   });
 
   it('handles empty sources or error', async () => {
@@ -60,4 +61,3 @@ describe('SourcesPage', () => {
     expect(screen.queryByText('ECI Official Website')).not.toBeInTheDocument();
   });
 });
-

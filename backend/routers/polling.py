@@ -1,20 +1,11 @@
-"""Polling Station & Eligibility router.
-
-GET  /api/polling?q=...   — Polling station lookup
-POST /api/eligibility     — Eligibility wizard
-GET  /api/elector/{epic}  — EPIC search
-"""
+"""Polling station, geocoding, eligibility, and EPIC lookup routes."""
 
 from __future__ import annotations
 
 from fastapi import APIRouter
 
-from backend.models.schemas import (
-    EligibilityRequest,
-    EligibilityResult,
-    PollingStationResult,
-)
 from backend.connectors import eci_voter, google_maps
+from backend.models.schemas import EligibilityRequest, EligibilityResult
 
 router = APIRouter(prefix="/api", tags=["polling"])
 
@@ -42,12 +33,13 @@ async def geocode_location(q: str = "") -> dict:
 @router.post("/eligibility", response_model=EligibilityResult)
 async def check_eligibility(req: EligibilityRequest) -> EligibilityResult:
     """Check voter eligibility based on provided details."""
-    # Rule-based eligibility check (no AI needed)
     if req.nationality.lower() != "indian":
         return EligibilityResult(
             eligible=False,
             reason="Only Indian citizens are eligible to vote in Indian elections.",
-            next_steps=["If you are an NRI with Indian citizenship, you may still be eligible under Section 20A of the RPA 1950."],
+            next_steps=[
+                "If you are an NRI with Indian citizenship, you may still be eligible under Section 20A of the RPA 1950."
+            ],
             source_url="https://www.eci.gov.in",
         )
 
@@ -56,14 +48,12 @@ async def check_eligibility(req: EligibilityRequest) -> EligibilityResult:
             eligible=False,
             reason=f"You must be at least 18 years old to vote. You are currently {req.age} years old.",
             next_steps=[
-                f"You will be eligible to vote when you turn 18.",
+                "You will be eligible to vote when you turn 18.",
                 "You can pre-register by filling Form 6 before the qualifying date (January 1st of the revision year).",
             ],
             source_url="https://voters.eci.gov.in",
         )
 
-    # Eligible — check EPIC status
-    next_steps = []
     if not req.has_epic:
         next_steps = [
             "Register as a voter by filling Form 6 at https://voters.eci.gov.in",

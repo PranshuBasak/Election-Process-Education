@@ -41,15 +41,28 @@ describe('Navbar', () => {
 
     const menuButton = screen.getByLabelText(/Toggle menu/i);
     
-    // Initially mobile menu should not be visible in the DOM (it's conditionally rendered)
-    // Actually, in the component it's {mobileOpen && ...}
-    expect(screen.queryByRole('link', { name: /Home/i, hidden: false })).toBeInTheDocument(); // Desktop links
+    expect(screen.queryByRole('dialog', { name: /Mobile navigation/i })).not.toBeInTheDocument();
     
     fireEvent.click(menuButton);
     
     // After toggle, mobile links should be present
     const mobileLinks = screen.getAllByRole('link', { name: /Home/i });
     expect(mobileLinks.length).toBeGreaterThan(1); // One for desktop, one for mobile
+    expect(screen.getByRole('dialog', { name: /Mobile navigation/i })).toBeInTheDocument();
+    expect(menuButton).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  it('closes mobile menu from the drawer close button', () => {
+    render(
+      <MemoryRouter>
+        <Navbar onChatToggle={mockOnChatToggle} />
+      </MemoryRouter>
+    );
+
+    fireEvent.click(screen.getByLabelText(/Toggle menu/i));
+    fireEvent.click(screen.getByLabelText(/Close menu/i));
+
+    expect(screen.queryByRole('dialog', { name: /Mobile navigation/i })).not.toBeInTheDocument();
   });
 
   it('highlights active link', () => {

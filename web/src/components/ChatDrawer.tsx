@@ -24,10 +24,25 @@ export function ChatDrawer({ open, onClose }: ChatDrawerProps) {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
   }, [messages]);
+
+  useEffect(() => {
+    if (!open) return;
+
+    inputRef.current?.focus();
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [onClose, open]);
 
   const sendMessage = async () => {
     const text = input.trim();
@@ -83,7 +98,13 @@ export function ChatDrawer({ open, onClose }: ChatDrawerProps) {
         </header>
 
         {/* Chat History */}
-        <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
+        <div
+          ref={scrollRef}
+          role="log"
+          aria-live="polite"
+          aria-relevant="additions text"
+          className="flex-1 overflow-y-auto p-4 flex flex-col gap-4"
+        >
           {messages.map((msg, i) => (
             <div key={i} className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
               {msg.role === 'assistant' && (
@@ -99,7 +120,7 @@ export function ChatDrawer({ open, onClose }: ChatDrawerProps) {
                     : 'bg-surface-container-low border border-outline-variant rounded-2xl rounded-tl-sm p-3 text-on-surface font-ui-body text-ui-body max-w-[85%] flex flex-col gap-2'
                 }`}
               >
-                <p className="whitespace-pre-wrap">{msg.content}</p>
+                <p className="whitespace-pre-wrap break-words">{msg.content}</p>
                 {msg.grounded && (
                   <div className="flex items-center gap-1.5 self-start px-2 py-0.5 bg-secondary/10 border border-secondary/20 rounded-full mt-1">
                     <span className="material-symbols-outlined text-[14px] text-secondary" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
@@ -115,10 +136,10 @@ export function ChatDrawer({ open, onClose }: ChatDrawerProps) {
                         href={c.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-1 text-primary hover:underline text-[12px]"
+                        className="min-w-0 flex items-center gap-1 text-primary hover:underline text-[12px]"
                       >
-                        <span className="material-symbols-outlined text-[14px]">description</span>
-                        {c.title}
+                        <span className="material-symbols-outlined text-[14px] shrink-0">description</span>
+                        <span className="truncate">{c.title}</span>
                       </a>
                     ))}
                   </div>
@@ -131,7 +152,7 @@ export function ChatDrawer({ open, onClose }: ChatDrawerProps) {
               <div className="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center flex-shrink-0">
                 <span className="material-symbols-outlined text-[16px] animate-pulse" style={{ fontVariationSettings: "'FILL' 1" }}>smart_toy</span>
               </div>
-              <div className="bg-surface-container-low border border-outline-variant rounded-2xl rounded-tl-sm p-3">
+              <div className="bg-surface-container-low border border-outline-variant rounded-2xl rounded-tl-sm p-3" role="status" aria-label="Assistant is typing">
                 <div className="flex gap-1">
                   <span className="w-2 h-2 bg-on-surface-variant/40 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
                   <span className="w-2 h-2 bg-on-surface-variant/40 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
@@ -152,6 +173,7 @@ export function ChatDrawer({ open, onClose }: ChatDrawerProps) {
             className="flex items-end gap-2 bg-surface-container-low rounded-2xl border border-outline-variant p-1 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all"
           >
             <textarea
+              ref={inputRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => {
@@ -161,6 +183,7 @@ export function ChatDrawer({ open, onClose }: ChatDrawerProps) {
                 }
               }}
               placeholder="Type your message..."
+              aria-label="Chat message"
               className="flex-1 bg-transparent border-none focus:ring-0 font-ui-body text-ui-body text-on-surface p-2 resize-none max-h-32 min-h-[40px] outline-none placeholder:text-outline-variant"
               rows={1}
               disabled={loading}

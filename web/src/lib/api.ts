@@ -1,19 +1,14 @@
-/**
- * API client — all calls to the FastAPI backend.
- */
-
 const BASE = import.meta.env.VITE_API_URL || '/api';
+const JSON_HEADERS = { 'Content-Type': 'application/json' };
 
 async function request<T>(path: string, opts?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
-    headers: { 'Content-Type': 'application/json', ...opts?.headers },
+    headers: { ...JSON_HEADERS, ...opts?.headers },
     ...opts,
   });
   if (!res.ok) throw new Error(`API ${res.status}: ${res.statusText}`);
   return res.json();
 }
-
-/* ── Types ──────────────────────────────────────────────────────────── */
 
 export interface Citation {
   title: string;
@@ -99,8 +94,6 @@ export interface ProgressData {
   [key: string]: string | number | boolean | string[] | Record<string, number> | Record<string, boolean> | undefined;
 }
 
-/* ── API Calls ──────────────────────────────────────────────────────── */
-
 export const api = {
   chat: (message: string, locale = 'en') =>
     request<ChatResponse>('/chat', {
@@ -112,11 +105,11 @@ export const api = {
 
   learnModules: () => request<LearnModule[]>('/learn'),
 
-  learnModule: (slug: string) => request<LearnModule>(`/learn/${slug}`),
+  learnModule: (slug: string) => request<LearnModule>(`/learn/${encodeURIComponent(slug)}`),
 
   glossary: () => request<GlossaryTerm[]>('/glossary'),
 
-  glossaryTerm: (term: string) => request<GlossaryTerm>(`/glossary/${term}`),
+  glossaryTerm: (term: string) => request<GlossaryTerm>(`/glossary/${encodeURIComponent(term)}`),
 
   quiz: (topic: string, difficulty = 'medium', count = 5, locale = 'en') =>
     request<QuizResponse>('/quiz', {
@@ -132,10 +125,11 @@ export const api = {
 
   sources: () => request<{ sources: SourceInfo[] }>('/sources'),
 
-  polling: (q: string) => request<{ message?: string; source_url?: string; open_maps_url?: string }>(`/polling?q=${encodeURIComponent(q)}`),
+  polling: (q: string) =>
+    request<{ message?: string; source_url?: string; open_maps_url?: string }>(`/polling?q=${encodeURIComponent(q)}`),
 
   health: () => request<{ status: string; version: string }>('/health'),
-  
+
   saveProgress: (userId: string, data: ProgressData) =>
     request<{ status: string; persisted?: boolean }>('/user/progress', {
       method: 'POST',

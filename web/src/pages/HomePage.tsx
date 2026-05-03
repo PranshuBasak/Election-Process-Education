@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../lib/api';
 import type { ChatResponse } from '../lib/api';
@@ -16,6 +16,7 @@ export default function HomePage() {
   const [response, setResponse] = useState<ChatResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showFact, setShowFact] = useState(true);
+  const responseCloseRef = useRef<HTMLButtonElement>(null);
 
   const facts = [
     "India has the largest electorate in the world, with over 900 million registered voters.",
@@ -25,6 +26,21 @@ export default function HomePage() {
   ];
   
   const [currentFact] = useState(() => facts[Math.floor(Math.random() * facts.length)]);
+
+  useEffect(() => {
+    if (!(isLoading || error || response)) return;
+
+    responseCloseRef.current?.focus();
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setResponse(null);
+        setError(null);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [error, isLoading, response]);
 
   const handleAsk = async (searchQuery: string) => {
     if (!searchQuery.trim()) return;
@@ -56,9 +72,9 @@ export default function HomePage() {
             Live Updates
           </span>
           <span className="text-sm font-medium text-on-surface-variant">Next Phase: April 26th - Stay informed and ready to vote!</span>
-          <span className="text-sm font-medium text-on-surface-variant">•</span>
+          <span className="text-sm font-medium text-on-surface-variant">-</span>
           <span className="text-sm font-medium text-on-surface-variant">Check your polling station in the sidebar</span>
-          <span className="text-sm font-medium text-on-surface-variant">•</span>
+          <span className="text-sm font-medium text-on-surface-variant">-</span>
           <span className="text-sm font-medium text-on-surface-variant">New Quiz modules released!</span>
         </div>
       </div>
@@ -76,7 +92,9 @@ export default function HomePage() {
         {/* Prompt Input */}
         <div className="w-full max-w-2xl bg-surface-container-lowest border border-surface-variant rounded-2xl shadow-lg p-2 flex items-center gap-2 mb-6 focus-within:ring-2 focus-within:ring-primary focus-within:border-transparent transition-all duration-300">
           <span className="material-symbols-outlined text-outline-variant pl-3">search</span>
+          <label htmlFor="home-ai-query" className="sr-only">Ask an election question</label>
           <input 
+            id="home-ai-query"
             className="flex-1 bg-transparent border-none focus:ring-0 font-ui-body text-lg text-on-surface py-4 outline-none placeholder:text-outline-variant" 
             placeholder="What would you like to know today?" 
             type="text"
@@ -87,6 +105,7 @@ export default function HomePage() {
             }}
           />
           <button 
+            type="button"
             onClick={() => handleAsk(query)}
             disabled={isLoading || !query.trim()}
             className="bg-primary text-primary-foreground font-ui-header font-bold px-8 py-4 rounded-xl flex items-center gap-2 hover:bg-primary/90 hover:scale-[1.02] active:scale-95 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
@@ -109,6 +128,7 @@ export default function HomePage() {
             "Find my polling station"
           ].map((chip) => (
             <button 
+              type="button"
               key={chip}
               onClick={() => handleAsk(chip)}
               className="px-5 py-2.5 rounded-full border border-surface-variant bg-surface-container-lowest text-on-surface-variant font-ui-label text-sm hover:border-primary hover:text-primary hover:bg-primary/5 transition-all active:scale-95 shadow-sm"
@@ -129,7 +149,9 @@ export default function HomePage() {
           {showFact && (
             <div className="relative overflow-hidden bg-gradient-to-br from-secondary/10 to-primary/5 border border-secondary/20 rounded-2xl p-8 animate-slide-up shadow-sm">
               <button 
+                type="button"
                 onClick={() => setShowFact(false)}
+                aria-label="Dismiss fact of the day"
                 className="absolute top-4 right-4 text-outline-variant hover:text-on-surface transition-colors"
               >
                 <span className="material-symbols-outlined text-[20px]">close</span>
@@ -209,7 +231,7 @@ export default function HomePage() {
                 </Link>
               ))}
             </div>
-            <button className="w-full mt-6 bg-accent text-on-accent py-3 rounded-xl font-bold text-sm hover:opacity-90 transition-opacity">
+            <button type="button" className="w-full mt-6 bg-accent text-on-accent py-3 rounded-xl font-bold text-sm hover:opacity-90 transition-opacity">
               Register Now
             </button>
           </div>
@@ -248,6 +270,8 @@ export default function HomePage() {
                 </div>
               </div>
               <button 
+                ref={responseCloseRef}
+                type="button"
                 onClick={() => { setResponse(null); setError(null); }}
                 aria-label="Close AI response"
                 className="w-10 h-10 rounded-full hover:bg-surface-container flex items-center justify-center transition-colors"
@@ -256,9 +280,9 @@ export default function HomePage() {
               </button>
             </div>
 
-            <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6">
+            <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6" aria-live="polite">
               {isLoading && (
-                <div className="py-12 flex flex-col items-center gap-4">
+                <div className="py-12 flex flex-col items-center gap-4" role="status">
                   <div className="relative">
                     <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
                     <div className="absolute inset-0 flex items-center justify-center">

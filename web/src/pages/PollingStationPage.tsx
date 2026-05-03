@@ -26,7 +26,7 @@ export default function PollingStationPage() {
     <div className="max-w-2xl mx-auto py-8 space-y-8">
       <div className="text-center space-y-2 animate-fade-in">
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary/10 text-secondary text-sm font-medium">
-          <MapPin className="w-4 h-4" /> Find Your Booth
+          <MapPin className="w-4 h-4" aria-hidden="true" /> Find Your Booth
         </div>
         <h1 className="text-3xl font-bold">Polling Station Lookup</h1>
         <p className="text-muted-foreground">Find where you need to go on election day</p>
@@ -34,37 +34,41 @@ export default function PollingStationPage() {
 
       <div className="glass-card p-6 space-y-4 animate-slide-up">
         <div className="relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <label htmlFor="polling-query" className="sr-only">EPIC number or address</label>
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
           <input type="text" value={query} onChange={e => setQuery(e.target.value)}
+            id="polling-query"
             onKeyDown={e => e.key === 'Enter' && search()}
             placeholder="Enter your EPIC number or address..."
             className="w-full pl-11 pr-4 py-3 rounded-xl bg-muted text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
         </div>
-        <button onClick={search}
+        <button type="button" onClick={search} disabled={!query.trim()}
           className="w-full py-3 rounded-xl bg-secondary text-secondary-foreground font-semibold hover:bg-secondary/90 transition-colors">
           Search Polling Station
         </button>
       </div>
 
-      {result && (
+      <div aria-live="polite">
+        {result && (
         <div className="glass-card p-6 animate-slide-up space-y-3">
           <p className="text-sm text-muted-foreground leading-relaxed">{result.message}</p>
           <div className="flex flex-wrap gap-2 pt-2">
             {result.source_url && (
               <a href={result.source_url} target="_blank" rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary/10 text-primary text-sm font-medium hover:bg-primary/20 transition-colors">
-                <ExternalLink className="w-4 h-4" /> Visit Official Portal
+                <ExternalLink className="w-4 h-4" aria-hidden="true" /> Visit Official Portal
               </a>
             )}
             {result.open_maps_url && (
               <a href={result.open_maps_url} target="_blank" rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary text-secondary-foreground text-sm font-medium hover:bg-secondary/90 transition-colors">
-                <MapPin className="w-4 h-4" /> Open in Google Maps
+                <MapPin className="w-4 h-4" aria-hidden="true" /> Open in Google Maps
               </a>
             )}
           </div>
         </div>
-      )}
+        )}
+      </div>
 
       <div className="glass-card p-6 space-y-3">
         <h3 className="font-semibold">Other Ways to Find Your Booth</h3>

@@ -54,6 +54,25 @@ describe('ChatDrawer', () => {
 
     expect(screen.getByText('ECI FAQ')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /ECI FAQ/i })).toHaveAttribute('href', 'https://eci.gov.in/faq');
+    expect(screen.getByRole('link', { name: /ECI FAQ/i })).toHaveAttribute('rel', 'noopener noreferrer');
+  });
+
+  it('shows Google grounding status when available', async () => {
+    (api.chat as Mock).mockResolvedValue({
+      reply: 'This answer was grounded.',
+      citations: [],
+      intent: 'general',
+      grounded: true,
+    });
+
+    render(<ChatDrawer open={true} onClose={mockOnClose} />);
+
+    fireEvent.change(screen.getByLabelText(/Chat message/i), { target: { value: 'ground this' } });
+    fireEvent.click(screen.getByLabelText(/Send message/i));
+
+    await waitFor(() => {
+      expect(screen.getByText(/Verified with Google Search grounding/i)).toBeInTheDocument();
+    });
   });
 
   it('handles error gracefully', async () => {
@@ -74,6 +93,12 @@ describe('ChatDrawer', () => {
     render(<ChatDrawer open={true} onClose={mockOnClose} />);
     const closeButton = screen.getByLabelText(/Close chat/i);
     fireEvent.click(closeButton);
+    expect(mockOnClose).toHaveBeenCalled();
+  });
+
+  it('calls onClose when Escape is pressed', () => {
+    render(<ChatDrawer open={true} onClose={mockOnClose} />);
+    fireEvent.keyDown(document, { key: 'Escape' });
     expect(mockOnClose).toHaveBeenCalled();
   });
 

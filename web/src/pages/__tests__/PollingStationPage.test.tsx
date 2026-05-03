@@ -18,14 +18,15 @@ describe('PollingStationPage', () => {
   it('renders initial state correctly', () => {
     render(<PollingStationPage />);
     expect(screen.getByText('Polling Station Lookup')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText(/Enter your EPIC number/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/EPIC number or address/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Search Polling Station/i })).toBeInTheDocument();
   });
 
   it('performs search and displays results', async () => {
     (api.polling as Mock).mockResolvedValue({
       message: 'Your polling station is at Govt School, Mumbai.',
-      source_url: 'https://voters.eci.gov.in'
+      source_url: 'https://voters.eci.gov.in',
+      open_maps_url: 'https://www.google.com/maps/search/?api=1&query=Mumbai',
     });
 
     render(<PollingStationPage />);
@@ -43,6 +44,7 @@ describe('PollingStationPage', () => {
     });
     
     expect(screen.getByRole('link', { name: /Visit Official Portal/i })).toHaveAttribute('href', 'https://voters.eci.gov.in');
+    expect(screen.getByRole('link', { name: /Open in Google Maps/i })).toHaveAttribute('rel', 'noopener noreferrer');
   });
 
   it('handles search error', async () => {

@@ -1,23 +1,19 @@
-"""RAG service — routes user intents to the correct connectors.
-
-Intent→Connector routing table (from API.md §9).
-Fetches context, wraps in UNTRUSTED blocks, feeds to Gemini.
-"""
+"""RAG service that routes user intents to the correct connectors."""
 
 from __future__ import annotations
 
 import logging
 from typing import Any
 
+from backend.connectors import data_gov_in, eci_results, eci_schedule, eci_voter, wiki
 from backend.services import gemini
-from backend.services.cache import cache, TTL_SCHEDULE, TTL_PROCEDURAL, TTL_GLOSSARY, TTL_RESULTS
-from backend.connectors import eci_voter, eci_results, eci_schedule, data_gov_in, wiki
+from backend.services.cache import TTL_GLOSSARY, TTL_PROCEDURAL, TTL_RESULTS, TTL_SCHEDULE, cache
 
 logger = logging.getLogger(__name__)
 
 REGISTRATION_KEYWORDS = ("form 6", "register", "registration", "new voter", "voter id", "enrol", "enroll")
 
-# Intent → (primary_connector_func, fallback_func, cache_ttl)
+# Intent to connector routing table.
 ROUTING_TABLE: dict[str, dict[str, Any]] = {
     "election_timeline": {
         "primary": eci_schedule.fetch_latest_schedule,
@@ -73,7 +69,7 @@ ROUTING_TABLE: dict[str, dict[str, Any]] = {
 
 
 def _wrap_untrusted(content: str) -> str:
-    """Wrap fetched content in clearly delimited UNTRUSTED block."""
+    """Wrap fetched content in a clearly delimited untrusted block."""
     return f"--- UNTRUSTED CONTEXT START ---\n{content[:6000]}\n--- UNTRUSTED CONTEXT END ---"
 
 
@@ -81,7 +77,6 @@ async def fetch_context(intent: str, message: str) -> str:
     """Fetch context for a given intent from the appropriate connector."""
     route = ROUTING_TABLE.get(intent, ROUTING_TABLE["general_question"])
 
-    # Check cache first
     cache_key = f"rag:{intent}:{message[:100]}"
     cached = cache.get(cache_key)
     if cached is not None:
@@ -89,7 +84,6 @@ async def fetch_context(intent: str, message: str) -> str:
 
     context_parts: list[str] = []
 
-    # Static context for eligibility
     if intent == "am_i_eligible":
         context_parts.append(
             "Indian Election Eligibility Rules (Source: https://www.eci.gov.in):\n"
@@ -111,7 +105,6 @@ async def fetch_context(intent: str, message: str) -> str:
             "5. Citizens should verify final details on the official Voters' Services Portal.\n"
         )
 
-    # Try primary connector
     primary_fn = route.get("primary")
     if primary_fn is not None:
         try:
@@ -121,7 +114,6 @@ async def fetch_context(intent: str, message: str) -> str:
         except Exception:
             logger.exception("Primary connector failed for intent=%s", intent)
 
-    # Try fallback if primary yielded nothing
     if not context_parts:
         fallback_fn = route.get("fallback")
         if fallback_fn is not None:
@@ -141,7 +133,7 @@ async def fetch_context(intent: str, message: str) -> str:
 
 
 async def answer_question(message: str, locale: str = "en") -> dict[str, Any]:
-    """Full RAG pipeline: classify → fetch context → generate answer."""
+    """Run the full RAG pipeline: classify intent, fetch context, generate answer."""
     lowered = message.lower()
     if any(keyword in lowered for keyword in REGISTRATION_KEYWORDS):
         intent = "how_to_register"

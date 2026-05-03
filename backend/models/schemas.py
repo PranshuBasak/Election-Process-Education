@@ -5,7 +5,7 @@ from __future__ import annotations
 from pydantic import BaseModel, Field
 
 
-# ── Chat ─────────────────────────────────────────────────────────────────
+# Chat
 class ChatRequest(BaseModel):
     message: str = Field(..., min_length=1, max_length=2000)
     session_id: str = Field(default="")
@@ -19,12 +19,12 @@ class Citation(BaseModel):
 
 class ChatResponse(BaseModel):
     reply: str
-    citations: list[Citation] = []
+    citations: list[Citation] = Field(default_factory=list)
     intent: str = ""
     grounded: bool = False
 
 
-# ── Timeline ─────────────────────────────────────────────────────────────
+# Timeline
 class TimelineItem(BaseModel):
     phase: str
     start: str
@@ -34,7 +34,7 @@ class TimelineItem(BaseModel):
     source_url: str = ""
 
 
-# ── Learn Modules / Steps ────────────────────────────────────────────────
+# Learn modules / steps
 class Step(BaseModel):
     order: int
     title: str
@@ -48,17 +48,17 @@ class LearnModule(BaseModel):
     title: str
     icon: str = ""
     summary: str = ""
-    steps: list[Step] = []
+    steps: list[Step] = Field(default_factory=list)
 
 
-# ── Glossary ─────────────────────────────────────────────────────────────
+# Glossary
 class GlossaryTerm(BaseModel):
     term: str
     definition_md: str
     source_url: str = ""
 
 
-# ── Quiz ─────────────────────────────────────────────────────────────────
+# Quiz
 class QuizRequest(BaseModel):
     topic: str
     difficulty: str = Field(default="medium", pattern=r"^(easy|medium|hard)$")
@@ -81,10 +81,10 @@ class QuizQuestion(BaseModel):
 
 class QuizResponse(BaseModel):
     topic: str
-    questions: list[QuizQuestion]
+    questions: list[QuizQuestion] = Field(default_factory=list)
 
 
-# ── Polling Station ──────────────────────────────────────────────────────
+# Polling station
 class PollingStationResult(BaseModel):
     part_no: int = 0
     name: str = ""
@@ -98,7 +98,7 @@ class PollingStationResult(BaseModel):
     source_url: str = "https://voters.eci.gov.in"
 
 
-# ── Eligibility ──────────────────────────────────────────────────────────
+# Eligibility
 class EligibilityRequest(BaseModel):
     age: int
     nationality: str = "Indian"
@@ -110,11 +110,11 @@ class EligibilityRequest(BaseModel):
 class EligibilityResult(BaseModel):
     eligible: bool
     reason: str
-    next_steps: list[str] = []
+    next_steps: list[str] = Field(default_factory=list)
     source_url: str = "https://voters.eci.gov.in"
 
 
-# ── Elector Info ─────────────────────────────────────────────────────────
+# Elector info
 class ElectorInfo(BaseModel):
     epic: str = ""
     name: str = ""
@@ -127,7 +127,7 @@ class ElectorInfo(BaseModel):
     source_url: str = "https://voters.eci.gov.in"
 
 
-# ── Sources / Transparency ──────────────────────────────────────────────
+# Sources / transparency
 class SourceInfo(BaseModel):
     name: str
     base_url: str
@@ -137,10 +137,10 @@ class SourceInfo(BaseModel):
 
 
 class SourcesResponse(BaseModel):
-    sources: list[SourceInfo]
+    sources: list[SourceInfo] = Field(default_factory=list)
 
 
-# ── Health ───────────────────────────────────────────────────────────────
+# Health
 class HealthResponse(BaseModel):
     status: str = "ok"
     version: str = "1.0.0"

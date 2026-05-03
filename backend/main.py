@@ -8,8 +8,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import Response
 from fastapi.staticfiles import StaticFiles
 
 from backend.models.schemas import HealthResponse
@@ -27,15 +28,27 @@ default_origins = [
     "https://election-edu-852805379097.asia-south1.run.app",
 ]
 configured_origins = os.getenv("CORS_ORIGINS", "")
-allowed_origins = [origin.strip() for origin in configured_origins.split(",") if origin.strip()] or default_origins
+configured_origin_list = [origin.strip().rstrip("/") for origin in configured_origins.split(",") if origin.strip()]
+allowed_origins = sorted(set(default_origins + configured_origin_list))
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "OPTIONS"],
+    allow_headers=["Content-Type", "X-User-ID"],
 )
+
+
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next) -> Response:
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+    return response
+
 
 app.include_router(chat.router)
 app.include_router(timeline.router)

@@ -102,6 +102,26 @@ describe('api client', () => {
     expect(res.message).toBe('Found');
   });
 
+  it('saveProgress() sends the user header', async () => {
+    mockFetch({ status: 'ok', persisted: true });
+    const res = await api.saveProgress('user-1', { completed_modules: ['intro'] });
+    expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('/user/progress'), expect.objectContaining({
+      method: 'POST',
+      headers: expect.objectContaining({ 'X-User-ID': 'user-1' }),
+      body: JSON.stringify({ data: { completed_modules: ['intro'] } }),
+    }));
+    expect(res.persisted).toBe(true);
+  });
+
+  it('getProgress() sends the user header', async () => {
+    mockFetch({ preferred_locale: 'en' });
+    const res = await api.getProgress('user-1');
+    expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('/user/progress'), expect.objectContaining({
+      headers: expect.objectContaining({ 'X-User-ID': 'user-1' }),
+    }));
+    expect(res.preferred_locale).toBe('en');
+  });
+
   it('throws error on non-ok response', async () => {
     mockFetch({}, false, 500);
     await expect(api.health()).rejects.toThrow('API 500: Error');
